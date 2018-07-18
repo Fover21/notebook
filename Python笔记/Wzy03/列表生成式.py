@@ -62,6 +62,12 @@
 				print(L)#['1---a', '2---b', '3---c']
 
 
+                    list1 = [1, 2, 3, 4]
+                    list2 = ['a', 'b', 'c', 'd']
+
+                    dic = {list1[i]: list2[i] for i in range(len(list2))}
+                    print(dic)
+
 
 
 

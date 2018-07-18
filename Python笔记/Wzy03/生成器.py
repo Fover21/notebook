@@ -37,7 +37,6 @@
 			        a, b = b, a + b
 			        n = n + 1
 			    return 'OK!'
-
 			print(fib(5))
 			结果：
 				1
@@ -47,7 +46,6 @@
 				5
 				OK!
 			我们可以看出从第一个元素开始，推算出后续任意的元素。很像generator。
-			
 			要把fib函数变成generator，只需要把 print(b)改为 yield b就可以了：
 			def fib(number):
 			    n, a, b = 0, 0, 1
@@ -58,11 +56,14 @@
 			    return 'OK!'
 
 			print(fib(5))#<generator object fib at 0x105606ca8>
-
 			注意：
 				这里难理解的就是generator和函数的执行流程是不一样的。
 				函数是顺序执行，遇到return语句或者最后一行函数语句就
 				返回。
+                注意：函数创建一次生成一个生成器，所以我们会将创建的生
+                    成器赋值给一个变量。如果直接用函数本身这个生成器，
+                    我们没用一次生成一个新的生成器对象，所以，我们一
+                    般都将创建的生成器赋给一个变量。
 				generetor的函数，在每次调用 next()的时候执行，遇到
 				yield语句返回，再次执行时从上次返回的yield语句处继续
 				执行。
@@ -91,7 +92,7 @@
 					执行三次后再执行 next(f) 就会报错了。
 					可以看到odd不是普通函数，而是generator遇到yield就会中断
 					下次又继续执行，执行三次后已经没有yield可以执行，所以再执
-					行 next(f) 就会报错了。
+					行 next(f) 就会报错了。最后的yield后面一般不写东西。
 
 
 			把函数改为generator后，我们基本不这么用 next()来获取下一个返回值
@@ -120,5 +121,94 @@
 					返回值包含在StopIteration的value中。
 
 					（关于如何捕获，异常处理见。）
+
+
+    接下来我们来看send⽅方法, send和next()一样都可以让生成器执行到下一个yield.
+        例子；
+            def eat():
+                print("我吃什么啊")
+                a = yield "馒头"
+                print("a=",a)
+                b = yield "⼤大饼"
+                print("b=",b)
+                c = yield "韭菜盒⼦子"
+                print("c=",c)
+                yield "GAME OVER"
+            gen = eat() # 获取⽣生成器器
+            ret1 = next(gen)
+            print(ret1)
+            ret2 = gen.send("胡辣汤")
+            print(ret2)
+            ret3 = gen.send("狗粮")
+            print(ret3)
+            ret4 = gen.send("猫粮")
+            print(ret4)
+            
+            结果：
+                我吃什么啊
+                馒头
+                a= 胡辣汤
+                ⼤大饼
+                b= 狗粮
+                韭菜盒⼦子
+                c= 猫粮
+                GAME OVER
+                    
+        send和next()区别:
+            1. send()和next()都是让生成器向下走一次
+            2. send可以给上一个yield的位置传递值,不能给最后一个yield发送值.
+                在第一次执行生成器代码的时候不能使用send()
+                    
+                    
+        三道题：
+            <1>
+            def add(a, b):
+                return a+b
+            def Test():
+                for i in range(4):
+                    yield i
+            g = Test()
+            for n in [2, 10]:
+                g = (add(n, i) for i in g)
+            print(list(g))
+                
+            结果：
+                [20, 21, 22, 23]
+
+            <2>
+            def func():
+                print('1')
+                yield 'This is one step'
+                print('2')
+                yield 'This is two step'
+                print('3')
+                yield 'This is theree step'
+            it = func()#函数返回生成器
+            print(list(it))
+            
+            结果：
+            1
+            2
+            3
+            ['This is one step', 'This is two step', 'This is theree step']
+            
+            <3>
+            def func():
+                print(111)
+                yield 222
+            g = func() # 生成器g
+            g1 = (i for i in g) # 生成器g1. 但是g1的数据来源于g
+            g2 = (i for i in g1) # 生成器器g2. 来源g1
+            print(list(g)) # 获取g中的数据. 这时func()才会被执行. 打印111.获取到222. g完毕.
+            print(list(g1)) # 获取g1中的数据. g1的数据来源是g. 但是g已经取完了了. g1 也就没有数据了
+            print(list(g2)) # 和g1同理
+            
+            结果：
+                111
+                [222]
+                []
+                []
+
+
 
 					    Form zero to hero

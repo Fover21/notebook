@@ -174,6 +174,17 @@
                 
             结果：
                 [20, 21, 22, 23]
+            分析：
+                print(list(g))这个语句之前都是准备阶段，只程序走到
+                print(list(g))这个语句这里程序才会执行，那么在此程
+                序执行的准备阶段前面做了什么事呢：
+                    到for循环这
+                        n = 2
+                        g = (add(n, i) for i in Test())
+                        n = 10
+                        g = (add(n, i) for i in add(n, i) for i in Test())
+                        这个时候执行list(g)其实执行的只是n==10的时候
+                        结果：[20, 21, 22, 23]
 
             <2>
             def func():

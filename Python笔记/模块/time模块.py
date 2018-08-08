@@ -91,11 +91,10 @@ print(time.mktime(time_tuple))
 #time.strftime('格式定义','结构化时间') 结构化时间参数若不传，则实现当前时间
 
 print(time.strftime('%Y-%m-%d'))
-print(time.strftime('%Y-%m-%d'), time.localtime(12000000000))
+print(time.strftime('%Y-%m-%d', time.localtime(12000000000)))
 #结果：
 #2018-08-08
-#2018-08-08 time.struct_time(tm_year=2350, tm_mon=4, tm_mday=8, tm_hour=5, tm_min=20, tm_sec=0, tm_wday=5, tm_yday=98, tm_isdst=0)
-
+#2350-04-08
 #4.字符串时间--->结构化时间
 #time.strptime('时间字符串','字符串对应格式')
 

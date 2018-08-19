@@ -1,6 +1,11 @@
 
 #首先安利一下：字符串是不可变的对象，所以任何操作对原字符串是不改变的。
 
+python2默认编码为ASCII    python3默认编码为uft-8
+python2的 str == bytes   而python3的str是Unicode bytes为str编码后的二进制类型
+
+
+
 1.编码
 	1）最早的计算机编码是ASSCII
 		128个码位 2**7 在此基础上加了一位 2**8

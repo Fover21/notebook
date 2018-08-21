@@ -2,3 +2,6 @@
 
 
 print(list(range(10)))
+
+
+https://www.cnblogs.com/Security-Darren/p/4594393.html

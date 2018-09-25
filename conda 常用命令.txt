@@ -1,0 +1,111 @@
+## 查看 conda 版本号
+conda -V
+conda --version
+
+
+## 环境管理
+1. 查看当前有哪些环境
+> conda env list 或
+> conda info -e
+> 
+> 实际执行命令示例:
+> ➜  ~ conda env list
+># conda environments:
+>#
+>base                  *  /anaconda3
+>flaskdev                 /anaconda3/envs/flaskdev
+>pythonRoad               /anaconda3/envs/pythonRoad
+>test_py2                 /anaconda3/envs/test_py2
+
+>➜  ~ conda info -e
+># conda environments:
+>#
+>base                  *  /anaconda3
+>flaskdev                 /anaconda3/envs/flaskdev
+>pythonRoad               /anaconda3/envs/pythonRoad
+>test_py2                 /anaconda3/envs/test_py2
+
+2. 查看环境管理的命令帮助
+>conda env -h
+
+3. 创建环境
+>conda create --name your_env_name
+
+4. 创建指定 python 版本的环境
+>conda create --name your_env_name python=2.7
+>conda create --name your_env_name python=3.6
+
+5. 创建包含某些包的环境
+>conda create --name your_env_name numpy scrapy
+
+6. 创建指定版本下包含某些包的环境
+>conda create --name your_env_name python=3.6 numpy scrapy
+
+7. 激活某个环境
+>source activate target_env_name
+
+8. 关闭激活的环境
+>source deactivate target_env_name
+
+9. 复制某个环境
+>conda create --name new_env_name --clone old_env_name
+
+10. 删除某个环境
+>conda remove --name target_env_name --all
+
+
+## 包管理
+1. 列举当前活跃环境下的所有包
+>conda list
+
+2. 列举一个指定环境下的所有包
+>conda list -n your_env_name
+
+3. 为激活环境安装某个包
+>conda install package_name
+
+4. 为指定环境安装某个包
+>conda install --name target_env_name package_name
+
+5. 更新当前环境某个包
+>conda update package_name
+
+6. 更新指定环境某个包
+>conda update -n target_env_name package_name
+
+7. 删除当前环境某个包
+>conda remove package_name
+## 注意: 如果是通过pip安装的包,移除时也请使用 pip uninstall package_name 命令移除,如果使用 conda remove 可能会发生异常,导致conda不可用
+
+8. 删除指定环境某个包
+>conda remove -n target_env_name package_name
+
+9. 搜索某个包信息
+>conda search package_name
+
+10. 更新anaconda
+>conda update anaconda
+
+11. 更新python至最新版本
+>conda update python
+
+12. 更新所有包
+>conda update --all
+
+
+## 分享环境
+把自己的环境分享给别人,方便他人快速建立与你一模一样的环境(同一个版本的python及各种包). 一个分享环境快速的方法就是给他人一个你要分享环境的.yml文件
+步骤:
+1) 生成欲分享环境的yml文件
+>conda env export > environment.yml
+
+2) 他人在自己本地使用yml文件创建文件
+>conda env create -f environment.yml
+
+
+------
+参考博客: https://blog.csdn.net/menc15/article/details/71477949/
+
+
+
+

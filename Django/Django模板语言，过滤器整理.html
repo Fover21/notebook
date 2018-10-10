@@ -1,0 +1,577 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>Django模板语言，过滤器整理</title><link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color: #ffffff; --text-color: #333333; --select-text-bg-color: #B5D6FC; --select-text-font-color: auto; --monospace: 'Lucida Console',Consolas,'Courier',monospace; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857143; overflow-x: hidden; background-image: inherit; background-size: inherit; background-attachment: inherit; background-origin: inherit; background-clip: inherit; background-color: inherit; background-position: inherit inherit; background-repeat: inherit inherit; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; word-wrap: break-word; position: relative; white-space: normal; padding-bottom: 70px; overflow-x: visible; }
+.first-line-indent #write div, .first-line-indent #write li, .first-line-indent #write p { text-indent: 2em; }
+.first-line-indent #write div :not(p):not(div), .first-line-indent #write div.md-htmlblock-container, .first-line-indent #write p *, .first-line-indent pre { text-indent: 0px; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+@media screen and (max-width: 500px) { 
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write > blockquote:first-child, #write > div:first-child, #write > figure:first-child, #write > ol:first-child, #write > p:first-child, #write > pre:first-child, #write > ul:first-child { margin-top: 30px; }
+#write li > figure:first-child { margin-top: -20px; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { color: inherit; font-family: inherit; font-size: inherit; font-style: inherit; font-variant-caps: inherit; font-weight: inherit; line-height: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.701961); color: rgb(85, 85, 85); border-top-left-radius: 4px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; border-bottom-left-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 80px; }
+.CodeMirror-gutters { border-right-width: 0px; background-color: inherit; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background-image: inherit; background-size: inherit; background-attachment: inherit; background-origin: inherit; background-clip: inherit; background-color: inherit; position: relative !important; background-position: inherit inherit; background-repeat: inherit inherit; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; background-position: 0px 0px; background-repeat: initial initial; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print { 
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid-page; break-before: avoid-page; }
+  #write { margin-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  html.blink-to-pdf { font-size: 13px; }
+  .typora-export #write { padding-left: 1cm; padding-right: 1cm; padding-bottom: 0px; break-after: avoid-page; }
+  .typora-export #write::after { height: 0px; }
+  @page { margin: 20mm 0px; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background-color: rgb(204, 204, 204); display: block; overflow-x: hidden; background-position: initial initial; background-repeat: initial initial; }
+p > img:only-child { display: block; margin: auto; }
+p > .md-image:only-child { display: inline-block; width: 100%; text-align: center; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) { 
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: '.'; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background-color: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; background-position: initial initial; background-repeat: initial initial; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; }
+a.md-print-anchor { white-space: pre !important; border: none !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; text-shadow: initial !important; background-position: 0px 0px !important; background-repeat: initial initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: 'Segoe UI Symbol', sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="mermaid"] svg, [lang="flow"] svg { max-width: 100%; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom-width: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+
+
+:root {
+    --side-bar-bg-color: #fafafa;
+    --control-text-color: #777;
+}
+
+@include-when-export url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Open Sans Regular'),url('file:///Users/jiaqiang/Library/Application%20Support/abnerworks.Typora/themes/github/400.woff') format('woff')
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: italic;
+    font-weight: normal;
+    src: local('Open Sans Italic'),url('file:///Users/jiaqiang/Library/Application%20Support/abnerworks.Typora/themes/github/400i.woff') format('woff')
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: bold;
+    src: local('Open Sans Bold'),url('file:///Users/jiaqiang/Library/Application%20Support/abnerworks.Typora/themes/github/700.woff') format('woff')
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    font-style: italic;
+    font-weight: bold;
+    src: local('Open Sans Bold Italic'),url('file:///Users/jiaqiang/Library/Application%20Support/abnerworks.Typora/themes/github/700i.woff') format('woff')
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: "Open Sans","Clear Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    color: rgb(51, 51, 51);
+    line-height: 1.6;
+}
+
+#write{
+    max-width: 860px;
+  	margin: 0 auto;
+  	padding: 20px 30px 40px 30px;
+	padding-top: 20px;
+    padding-bottom: 100px;
+}
+#write > ul:first-child,
+#write > ol:first-child{
+    margin-top: 30px;
+}
+
+body > *:first-child {
+    margin-top: 0 !important;
+}
+body > *:last-child {
+    margin-bottom: 0 !important;
+}
+a {
+    color: #4183C4;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    position: relative;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    line-height: 1.4;
+    cursor: text;
+}
+h1:hover a.anchor,
+h2:hover a.anchor,
+h3:hover a.anchor,
+h4:hover a.anchor,
+h5:hover a.anchor,
+h6:hover a.anchor {
+    /*background: url("file:///Users/jiaqiang/Library/Application%20Support/images/modules/styleguide/para.png") no-repeat 10px center;*/
+    text-decoration: none;
+}
+h1 tt,
+h1 code {
+    font-size: inherit;
+}
+h2 tt,
+h2 code {
+    font-size: inherit;
+}
+h3 tt,
+h3 code {
+    font-size: inherit;
+}
+h4 tt,
+h4 code {
+    font-size: inherit;
+}
+h5 tt,
+h5 code {
+    font-size: inherit;
+}
+h6 tt,
+h6 code {
+    font-size: inherit;
+}
+h1 {
+    padding-bottom: .3em;
+    font-size: 2.25em;
+    line-height: 1.2;
+    border-bottom: 1px solid #eee;
+}
+h2 {
+   padding-bottom: .3em;
+    font-size: 1.75em;
+    line-height: 1.225;
+    border-bottom: 1px solid #eee;
+}
+h3 {
+    font-size: 1.5em;
+    line-height: 1.43;
+}
+h4 {
+    font-size: 1.25em;
+}
+h5 {
+    font-size: 1em;
+}
+h6 {
+   font-size: 1em;
+    color: #777;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table{
+    margin: 0.8em 0;
+}
+li>ol,
+li>ul {
+    margin: 0 0;
+}
+hr {
+    height: 2px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #e7e7e7;
+    border: 0 none;
+    overflow: hidden;
+    box-sizing: content-box;
+}
+
+body > h2:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+body > h1:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+body > h1:first-child + h2 {
+    margin-top: 0;
+    padding-top: 0;
+}
+body > h3:first-child,
+body > h4:first-child,
+body > h5:first-child,
+body > h6:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+a:first-child h1,
+a:first-child h2,
+a:first-child h3,
+a:first-child h4,
+a:first-child h5,
+a:first-child h6 {
+    margin-top: 0;
+    padding-top: 0;
+}
+h1 p,
+h2 p,
+h3 p,
+h4 p,
+h5 p,
+h6 p {
+    margin-top: 0;
+}
+li p.first {
+    display: inline-block;
+}
+ul,
+ol {
+    padding-left: 30px;
+}
+ul:first-child,
+ol:first-child {
+    margin-top: 0;
+}
+ul:last-child,
+ol:last-child {
+    margin-bottom: 0;
+}
+blockquote {
+    border-left: 4px solid #dfe2e5;
+    padding: 0 15px;
+    color: #777777;
+}
+blockquote blockquote {
+    padding-right: 0;
+}
+table {
+    padding: 0;
+    word-break: initial;
+}
+table tr {
+    border-top: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 0;
+}
+table tr:nth-child(2n),
+thead {
+    background-color: #f8f8f8;
+}
+table tr th {
+    font-weight: bold;
+    border: 1px solid #dfe2e5;
+    border-bottom: 0;
+    text-align: left;
+    margin: 0;
+    padding: 6px 13px;
+}
+table tr td {
+    border: 1px solid #dfe2e5;
+    text-align: left;
+    margin: 0;
+    padding: 6px 13px;
+}
+table tr th:first-child,
+table tr td:first-child {
+    margin-top: 0;
+}
+table tr th:last-child,
+table tr td:last-child {
+    margin-bottom: 0;
+}
+
+.CodeMirror-lines {
+    padding-left: 4px;
+}
+
+.code-tooltip {
+    box-shadow: 0 1px 1px 0 rgba(0,28,36,.3);
+    border-top: 1px solid #eef2f2;
+}
+
+.md-fences,
+code,
+tt {
+    border: 1px solid #e7eaed;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+    padding: 0;
+    padding: 2px 4px 0px 4px;
+    font-size: 0.9em;
+}
+
+code {
+    background-color: #f3f4f4;
+    padding: 0 4px 2px 4px;
+}
+
+.md-fences {
+    margin-bottom: 15px;
+    margin-top: 15px;
+    padding: 0.2em 1em;
+    padding-top: 8px;
+    padding-bottom: 6px;
+}
+
+
+.md-task-list-item > input {
+  margin-left: -1.3em;
+}
+
+@media screen and (min-width: 914px) {
+    /*body {
+        width: 854px;
+        margin: 0 auto;
+    }*/
+}
+@media print {
+    html {
+        font-size: 13px;
+    }
+    table,
+    pre {
+        page-break-inside: avoid;
+    }
+    pre {
+        word-wrap: break-word;
+    }
+}
+
+.md-fences {
+	background-color: #f8f8f8;
+}
+#write pre.md-meta-block {
+	padding: 1rem;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border: 0;
+    border-radius: 3px;
+    color: #777777;
+    margin-top: 0 !important;
+}
+
+.mathjax-block>.code-tooltip {
+	bottom: .375rem;
+}
+
+.md-mathjax-midline {
+    background: #fafafa;
+}
+
+#write>h3.md-focus:before{
+	left: -1.5625rem;
+	top: .375rem;
+}
+#write>h4.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h5.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h6.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+.md-image>.md-meta {
+    /*border: 1px solid #ddd;*/
+    border-radius: 3px;
+    padding: 2px 0px 0px 4px;
+    font-size: 0.9em;
+    color: inherit;
+}
+
+.md-tag {
+    color: #a7a7a7;
+    opacity: 1;
+}
+
+.md-toc { 
+    margin-top:20px;
+    padding-bottom:20px;
+}
+
+.sidebar-tabs {
+    border-bottom: none;
+}
+
+#typora-quick-open {
+    border: 1px solid #ddd;
+    background-color: #f8f8f8;
+}
+
+#typora-quick-open-item {
+    background-color: #FAFAFA;
+    border-color: #FEFEFE #e5e5e5 #e5e5e5 #eee;
+    border-style: solid;
+    border-width: 1px;
+}
+
+/** focus mode */
+.on-focus-mode blockquote {
+    border-left-color: rgba(85, 85, 85, 0.12);
+}
+
+header, .context-menu, .megamenu-content, footer{
+    font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.file-node-content:hover .file-node-icon,
+.file-node-content:hover .file-node-open-state{
+    visibility: visible;
+}
+
+.mac-seamless-mode #typora-sidebar {
+    background-color: #fafafa;
+    background-color: var(--side-bar-bg-color);
+}
+
+.md-lang {
+    color: #b4654d;
+}
+
+.html-for-mac .context-menu {
+    --item-hover-bg-color: #E6F0FE;
+}
+
+
+ .typora-export p, .typora-export .footnote-line {white-space: normal;} 
+</style>
+</head>
+<body class='typora-export' >
+<div  id='write'  class = 'is-mac'><h2><a name='header-n0' class='md-header-anchor '></a>Django模板语言，过滤器整理</h2><h4><a name='header-n2' class='md-header-anchor '></a>1. add</h4><p><strong>{{ value|add:&quot;2&quot; }}</strong></p><p>把add后的参数加给value；</p><p>处理时，过滤器首先会强制把两个值转换成Int类型。 如果强制转换失败, 它会试图使用各种方式吧两个值相加。</p><blockquote><p>实例：</p><p>{{  arg|add:val }}</p><p>1）arg是5，val是3，将会输出8</p><p>2）arg是5，val是&#39;3&#39;，将会输出8</p><p>3）arg是&#39;jason&#39;，val是&#39;2&#39;，将会输出jason2</p><p>4）arg是&#39;jason&#39;，val是2，将会输出空</p><p>5）arg是[1, 2, 3]，val是[4]，将会输出[1, 2, 3, 4]</p></blockquote><p>&nbsp;</p><h4><a name='header-n51' class='md-header-anchor '></a>2. addslashes</h4><p>{{ value|addslashes }}</p><p>在引号前面加上斜杆</p><p>像这样：</p><p>如果<code>value</code> 是 <code>&quot;I&#39;m using Django&quot;</code>, 输出将变成 <code>&quot;I\&#39;m using Django&quot;</code></p><p>&nbsp;</p><h4><a name='header-n67' class='md-header-anchor '></a>3. capfirst</h4><p>{{ value|capfirst}}</p><p>将变量的第一个字母变成大写，如果第一个字符不是字母，则过滤器不生效</p><p>如果 <code>&quot;value&quot;</code> 是 <code>&quot;django&quot;</code>, 输出将变成 <code>Django</code>。</p><p>&nbsp;</p><h4><a name='header-n80' class='md-header-anchor '></a>4. center</h4><p>{{ value|center:16}}</p><p>使&quot;value&quot;在给定的宽度范围内居中。</p><p>&nbsp;</p><h4><a name='header-n88' class='md-header-anchor '></a>5. cut</h4><p>移除value中所有的与给出的变量相同的字符串</p><p>{{ value|cut:&quot; &quot;}}</p><p>如果<code>value</code>为<code>“String with spaces”</code>，输出将为<code>&quot;Stringwithspaces&quot;</code>。</p><p>&nbsp;</p><h4><a name='header-n100' class='md-header-anchor '></a>6. date</h4><p>根据给定格式对一个date变量格式化</p><p>可用的格式字符串：</p><figure><table><thead><tr><th>格式化字符</th><th>描述</th><th>示例输出</th></tr></thead><tbody><tr><td>a</td><td><code>&#39;a.m.&#39;</code>或<code>&#39;p.m.&#39;</code>（请注意，这与PHP的输出略有不同，因为这包括符合Associated Press风格的期间）</td><td><code>&#39;a.m.&#39;</code></td></tr><tr><td>A</td><td><code>&#39;AM&#39;</code>或<code>&#39;PM&#39;</code>。</td><td><code>&#39;AM&#39;</code></td></tr><tr><td>b</td><td>月，文字，3个字母，小写。</td><td><code>&#39;jan&#39;</code></td></tr><tr><td>B</td><td>未实现。</td><td> </td></tr><tr><td>c</td><td>ISO 8601格式。 （注意：与其他格式化程序不同，例如“Z”，“O”或“r”，如果值为naive datetime，则“c”格式化程序不会添加时区偏移量（请参阅<a href='https://docs.python.org/3/library/datetime.html#datetime.tzinfo'><code>datetime.tzinfo</code></a>） 。</td><td><code>2008-01-02T10:30:00.000123+02:00</code>或<code>2008-01-02T10:30:00.000123</code>如果datetime是天真的</td></tr><tr><td>d</td><td>月的日子，带前导零的2位数字。</td><td><code>&#39;01&#39;</code>到<code>&#39;31&#39;</code></td></tr><tr><td>D</td><td>一周中的文字，3个字母。</td><td><code>“星期五”</code></td></tr><tr><td>e</td><td>时区名称 可能是任何格式，或者可能返回一个空字符串，具体取决于datetime。</td><td><code>&#39;&#39;</code>、<code>&#39;GMT&#39;</code>、<code>&#39;-500&#39;</code>、<code>&#39;US/Eastern&#39;</code>等</td></tr><tr><td>E</td><td>月份，特定地区的替代表示通常用于长日期表示。</td><td><code>&#39;listopada&#39;</code>（对于波兰语区域，而不是<code>&#39;Listopad&#39;</code>）</td></tr><tr><td>f</td><td>时间，在12小时的小时和分钟内，如果它们为零，则分钟停留。 专有扩展。</td><td><code>&#39;1&#39;</code>，<code>&#39;1:30&#39;</code></td></tr><tr><td>F</td><td>月，文，长。</td><td><code>&#39;一月&#39;</code></td></tr><tr><td>g</td><td>小时，12小时格式，无前导零。</td><td><code>&#39;1&#39;</code>到<code>&#39;12&#39;</code></td></tr><tr><td>G</td><td>小时，24小时格式，无前导零。</td><td><code>&#39;0&#39;</code>到<code>&#39;23&#39;</code></td></tr><tr><td>h</td><td>小时，12小时格式。</td><td><code>&#39;01&#39;</code>到<code>&#39;12&#39;</code></td></tr><tr><td>H</td><td>小时，24小时格式。</td><td><code>&#39;00&#39;</code>到<code>&#39;23&#39;</code></td></tr><tr><td>i</td><td>分钟。</td><td><code>&#39;00&#39;</code>到<code>&#39;59&#39;</code></td></tr><tr><td>I</td><td>夏令时间，无论是否生效。</td><td><code>&#39;1&#39;</code>或<code>&#39;0&#39;</code></td></tr><tr><td>j</td><td>没有前导零的月份的日子。</td><td><code>&#39;1&#39;</code>到<code>&#39;31&#39;</code></td></tr><tr><td>l</td><td>星期几，文字长。</td><td><code>&#39;星期五&#39;</code></td></tr><tr><td>L</td><td>布尔值是否是一个闰年。</td><td><code>True</code>或<code>False</code></td></tr><tr><td>m</td><td>月，2位数字带前导零。</td><td><code>&#39;01&#39;</code>到<code>&#39;12&#39;</code></td></tr><tr><td>M</td><td>月，文字，3个字母。</td><td><code>“扬”</code></td></tr><tr><td>n</td><td>月无前导零。</td><td><code>&#39;1&#39;</code>到<code>&#39;12&#39;</code></td></tr><tr><td>N</td><td>美联社风格的月份缩写。 专有扩展。</td><td><code>&#39;Jan.&#39;</code>，<code>&#39;Feb.&#39;</code>，<code>&#39;March&#39;</code>，<code>&#39;May&#39;</code></td></tr><tr><td>o</td><td>ISO-8601周编号，对应于使用闰年的ISO-8601周数（W）。 对于更常见的年份格式，请参见Y。</td><td><code>&#39;1999年&#39;</code></td></tr><tr><td>O</td><td>与格林威治时间的差异在几小时内。</td><td><code>&#39;+0200&#39;</code></td></tr><tr><td>P</td><td>时间为12小时，分钟和&#39;a.m。&#39;/&#39;p.m。&#39;，如果为零，分钟停留，特殊情况下的字符串“午夜”和“中午”。 专有扩展。</td><td><code>&#39;1 am&#39;</code>，<code>&#39;1:30 pm&#39; / t3&gt;，&#39;midnight&#39;，&#39;noon&#39;，&#39;12：30 pm&#39; / T10&gt;</code></td></tr><tr><td>r</td><td><a href='https://tools.ietf.org/html/rfc5322.html'><strong>RFC 5322</strong></a>格式化日期。</td><td><code>&#39;Thu, 21 Dec 2000 16:01:07 +0200&#39;</code></td></tr><tr><td>s</td><td>秒，带前导零的2位数字。</td><td><code>&#39;00&#39;</code>到<code>&#39;59&#39;</code></td></tr><tr><td>S</td><td>一个月的英文序数后缀，2个字符。</td><td><code>&#39;st&#39;</code>，<code>&#39;nd&#39;</code>，<code>&#39;rd&#39;</code>或<code>&#39;th&#39;</code></td></tr><tr><td>t</td><td>给定月份的天数。</td><td><code>28</code> to <code>31</code></td></tr><tr><td>T</td><td>本机的时区。</td><td><code>&#39;EST&#39;</code>，<code>&#39;MDT&#39;</code></td></tr><tr><td>u</td><td>微秒。</td><td><code>000000</code> to <code>999999</code></td></tr><tr><td>U</td><td>自Unix Epoch以来的二分之一（1970年1月1日00:00:00 UTC）。</td><td> </td></tr><tr><td>w</td><td>星期几，数字无前导零。</td><td><code>&#39;0&#39;</code>（星期日）至<code>&#39;6&#39;</code>（星期六）</td></tr><tr><td>W</td><td>ISO-8601周数，周数从星期一开始。</td><td><code>1</code>，<code>53</code></td></tr><tr><td>y</td><td>年份，2位数字。</td><td><code>&#39;99&#39;</code></td></tr><tr><td>Y</td><td>年，4位数。</td><td><code>&#39;1999年&#39;</code></td></tr><tr><td>z</td><td>一年中的日子</td><td><code>0</code>到<code>365</code></td></tr><tr><td>Z</td><td>时区偏移量，单位为秒。 UTC以西时区的偏移量总是为负数，对于UTC以东时，它们总是为正。</td><td><code>-43200</code>到<code>43200</code></td></tr></tbody></table></figure><blockquote><p>实例：</p><p>now = datetime.datetime.now()</p><p>1）{{ now|date:&#39;Y-m-d H:i:s&#39;}}</p><p>输出类似：2018-10-09 11:15:22</p><p>2）{{ now|date }}</p><p>输出类似：Oct. 9, 2018</p><p>传递的格式可以是预定义的格式<a href='https://yiyibooks.cn/__trs__/xx/Django_1.11.6/ref/settings.html#std:setting-DATE_FORMAT'><code>DATE_FORMAT</code></a>，<a href='https://yiyibooks.cn/__trs__/xx/Django_1.11.6/ref/settings.html#std:setting-DATETIME_FORMAT'><code>DATETIME_FORMAT</code></a>，<a href='https://yiyibooks.cn/__trs__/xx/Django_1.11.6/ref/settings.html#std:setting-SHORT_DATE_FORMAT'><code>SHORT_DATE_FORMAT</code></a>或<a href='https://yiyibooks.cn/__trs__/xx/Django_1.11.6/ref/settings.html#std:setting-SHORT_DATETIME_FORMAT'><code>SHORT_DATETIME_FORMAT</code></a></p><p>3）{{ now|date:&quot;DATETIME_FORMAT&quot; }}</p><p>输出类似：Oct. 9, 2018, 11:19 a.m.</p></blockquote><p>&nbsp;</p><h4><a name='header-n306' class='md-header-anchor '></a>7. default</h4><p>如果value的计算结果为<code>False</code>，则使用给定的默认值。 否则，使用该value。</p><p>{{ value|default:&quot;nothing&quot; }}</p><p>&nbsp;</p><h4><a name='header-n319' class='md-header-anchor '></a>8. default_if_none</h4><p>{{ value|default_if_none:&quot;nothing&quot;}}</p><p>当且仅当value为<code>None</code>，则使用给定的默认值。 否则，使用该value。</p><p>注意，如果给出一个空字符串，默认值将<em>不</em>被使用。</p><p>&nbsp;</p><h4><a name='header-n330' class='md-header-anchor '></a>9. dictsort</h4><p>{{ value|dictsort:&quot;name&quot; }}</p><p>接受一个字典列表，并返回按参数中给出的键排序后的列表。</p><blockquote><p>实例：</p><p>Value = [
+<span>	</span>{&#39;name&#39;: &#39;zed&#39;, &#39;age&#39;: 19},
+<span>	</span>{&#39;name&#39;: &#39;amy&#39;, &#39;age&#39;: 22},
+<span>	</span>{&#39;name&#39;: &#39;joe&#39;, &#39;age&#39;: 31},
+]</p><p>{{ Value|dictsort:&#39;name&#39; }}
+{{ Value|dictsort:&#39;age&#39; }}</p><p>输出：</p><p>[{&#39;name&#39;: &#39;amy&#39;, &#39;age&#39;: 22}, {&#39;name&#39;: &#39;joe&#39;, &#39;age&#39;: 31}, {&#39;name&#39;: &#39;zed&#39;, &#39;age&#39;: 19}]</p><p>[{&#39;name&#39;: &#39;zed&#39;, &#39;age&#39;: 19}, {&#39;name&#39;: &#39;amy&#39;, &#39;age&#39;: 22}, {&#39;name&#39;: &#39;joe&#39;, &#39;age&#39;: 31}]</p></blockquote><p>&nbsp;</p><h4><a name='header-n372' class='md-header-anchor '></a>10. dictsortreversed</h4><p>获取字典列表，并返回按照参数中给出的键按相反顺序排序的列表。 这与上面的过滤器完全相同，但返回的值将是相反的顺序。</p><p>&nbsp;</p><h4><a name='header-n379' class='md-header-anchor '></a>11. divisibleby</h4><p>{{ value|divisibleby:“2” }}</p><p>如果value可以被给出的参数整除，则返回 <code>True</code></p><blockquote><p>实例：</p><p>value = 12</p><p>{{ value|divisibleby:“2” }}</p><p>输出：True</p></blockquote><p>&nbsp;</p><h4><a name='header-n402' class='md-header-anchor '></a>12. filesizeformat</h4><p>格式化为“可读”文件大小（即<code>&#39;13 KB&#39;</code>，<code>t4&gt; MB&#39;</code>，<code>&#39;102 bytes&#39;</code>等）。</p><p>{{ value|filesizeformat }}</p><blockquote><p>实例：</p><p>value = 1234567890</p><p>{{ value|filesizeformat }}</p><p>输出：1.1 GB</p></blockquote><p>&nbsp;</p><h4><a name='header-n422' class='md-header-anchor '></a>13. first</h4><p>{{ value|first }}</p><p>返回序列中的第一项（字符串、列表、元组等）</p><p>如果<code>value</code>是列表<code>[&#39;a&#39;， &#39;b&#39;， &#39;c&#39;]</code>，输出将为<code>&#39;a&#39;</code>。</p><p>&nbsp;</p><h4><a name='header-n435' class='md-header-anchor '></a>14. floatformat</h4><p>当不使用参数时，将浮点数舍入到小数点后一位；使用参数时，保留参数指定的位数</p><blockquote><p>实例:</p><p>pi = 3.1415926</p><p>{{ pi|floatformat }}</p><p>{{ pi|floatformat:0 }}</p><p>{{ pi|floatformat:2 }}</p><p>输出:</p><p>3.1
+3
+3.14</p></blockquote><p>&nbsp;</p><h4><a name='header-n479' class='md-header-anchor '></a>15. get_digit</h4><p>给定一个整数，返回所请求的数字，其中1是最右边的数字，2是第二个最右边的数字等。 返回无效输入的原始值（如果输入或参数不是整数，或参数小于1）。否则，输出总是一个整数。</p><blockquote><p>实例:</p><p>{{ value|get_digit:&quot;2&quot; }}</p><p>如果<code>value</code>为<code>123456789</code>，则输出将为<code>8</code>。</p></blockquote><p>&nbsp;</p><h4><a name='header-n477' class='md-header-anchor '></a>16. join</h4><p>使用字符串连接列表，例如Python的<code>str.join(list)</code></p><p>{{ value|join:&quot; // &quot; }}</p><p>如果<code>value</code>是列表<code>[&#39;a&#39;， &#39;b&#39;， &#39;c&#39;]，输出将为“a // b // C“。</code></p><p>&nbsp;</p><h4><a name='header-n491' class='md-header-anchor '></a>17. last</h4><p>返回列表中的最后一个项目</p><p>{{  value|last }}</p><p>如果<code>value</code>是列表<code>[&#39;a&#39;， &#39;b&#39;， &#39;c&#39;]，输出将为&#39;c&#39;</code></p><p>&nbsp;</p><h4><a name='header-n500' class='md-header-anchor '></a>18. length</h4><p>返回值的长度</p><p>{{ value|length }}</p><p>如果<code>value</code>是<code>[&#39;a&#39;， &#39;b&#39;， &#39;c&#39;， &#39;d&#39;]</code>或<code>&quot;abcd&quot;</code>，输出将为<code>4</code>。</p><p>对于未定义的变量，过滤器返回<code>0</code>。</p><p>&nbsp;</p><h4><a name='header-n514' class='md-header-anchor '></a>19. length_is</h4><p>如果值的长度是参数，则返回<code>True</code>，否则返回<code>False</code>。</p><p>{{ value|length_is:&quot;4&quot; }}</p><p>如果value是[&#39;a&#39;， &#39;b&#39;， &#39;c&#39;， &#39;d&#39;]或&quot;abcd&quot;，输出将为True。</p><p>&nbsp;</p><h4><a name='header-n527' class='md-header-anchor '></a>20. linebreaks</h4><p>替换纯文本中的换行为正确的HTML标签；单独的一个换行变成(<code>&lt;br/&gt;</code>) ，原文本用p标签包裹起来。</p><p>如果<code>value</code>为<code>Joel\nis a slug</code>，输出将为<code>&lt;p&gt;Joel&lt;br/&gt;is a slug&lt;/p&gt;</code>。</p><p>&nbsp;</p><h4><a name='header-n536' class='md-header-anchor '></a>21. linebreaksbr</h4><p>与linebreaks类似, 区别是, linebreaksbr只替换换行, 替换完成后没有p标签包裹.</p><p>如果<code>value</code>为<code>Joel\nis a slug</code>，输出将为<code>Joel&lt;br/&gt;is a slug</code>。</p><p>&nbsp;</p><h4><a name='header-n545' class='md-header-anchor '></a>22. linenumbers</h4><p>输出多行文本时, 在行前显示行号.</p><p>{{ value|linenumbers }}</p><p>如果<code>value</code>为：</p><blockquote><p>one
+two
+three</p></blockquote><p>输出将是：</p><blockquote><ol start='' ><li>one</li><li>two</li><li>three</li></ol></blockquote><p>&nbsp;</p><h4><a name='header-n583' class='md-header-anchor '></a>23. ljust</h4><p>将给定宽度的字段中的值左对齐。</p><p>&quot;{{ value|ljust:&quot;10&quot; }}&quot;</p><p>如果<code>value</code>为<code>Django</code>，则输出将为<code>“Django ”</code>。</p><p>&nbsp;</p><h4><a name='header-n596' class='md-header-anchor '></a>24. lower</h4><p>将字符串转换为全部小写。</p><p>如果<code>value</code>是<code>ABC</code>, 则输出将为<code>abc</code></p><p>&nbsp;</p><h4><a name='header-n602' class='md-header-anchor '></a>25. make_list</h4><p>返回转换为列表的值。</p><p>{{ value|make_list }}</p><p>如果<code>value</code>是字符串<code>&quot;Joel&quot;</code>，输出将是列表<code>[&#39;J&#39;， &#39;o&#39; ， &#39;e&#39;， &#39;l&#39;]</code>。 如果<code>value</code>为<code>123</code>，输出将为列表<code>[&#39;1&#39;, &#39;2&#39;, &#39;3&#39;]</code>。</p><p>&nbsp;</p><h4><a name='header-n621' class='md-header-anchor '></a>26. pluralize</h4><p>如果值不是1则返回一个复数形式 , 通常用 <code>&#39;s&#39;</code>表示.</p><p>例如:</p><blockquote><p>You have {{ num_messages }} message{{ num_messages|pluralize }}.</p></blockquote><p>如果<code>num_messages</code>是<code>1</code>，则输出将为 <code>You have 1 message.</code> 如果<code>num_messages</code>是<code>2</code>，输出将为 <code>You have 2 messages.</code></p><p>另外如果你需要的不是 <code>&#39;s&#39;</code>后缀的话, 你可以提供一个备选的参数给过滤器;</p><p>例如：</p><blockquote><p>You have {{ num_walruses }} walrus{{ num_walruses|pluralize:&quot;es&quot; }}.</p></blockquote><p>对于非一般形式的复数,你可以同时指定 单复数形式，用逗号隔开.</p><p>例如：</p><blockquote><p>You have {{ num_cherries }} cherr{{ num_cherries|pluralize:&quot;y,ies&quot; }}.</p></blockquote><p>&nbsp;</p><h4><a name='header-n662' class='md-header-anchor '></a>27. pprint</h4><p>用于调试, 方便查看.</p><p>&nbsp;</p><h4><a name='header-n668' class='md-header-anchor '></a>28. random</h4><p>返回给定列表中的随机项。</p><p>{{ value|random }}</p><p>如果value是[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;], 输出可能是&#39;c&#39;.</p><p>&nbsp;</p><h4><a name='header-n682' class='md-header-anchor '></a>29. rjust</h4><p>右对齐给定宽度字段中的值。</p><p>&nbsp;</p><h4><a name='header-n688' class='md-header-anchor '></a>30. safe</h4><p>将字符串标记为在输出之前不需要进一步的HTML转义。 当自动转义关闭时，此过滤器不起作用。</p><p>&nbsp;</p><h4><a name='header-n694' class='md-header-anchor '></a>31. safeseq</h4><p>将<a href='https://yiyibooks.cn/__trs__/xx/Django_1.11.6/ref/templates/builtins.html#std:templatefilter-safe'><code>safe</code></a>过滤器应用于序列的每个元素。 与对序列进行操作的其他过滤器（例如<a href='https://yiyibooks.cn/__trs__/xx/Django_1.11.6/ref/templates/builtins.html#std:templatefilter-join'><code>join</code></a>）一起使用非常有用。</p><p>{{ some_list|safeseq|join:&quot;, &quot; }}</p><p>&nbsp;</p><h4><a name='header-n704' class='md-header-anchor '></a>32. slice</h4><p>返回列表的一部分。</p><p>{{ some_list|slice:&quot;:2&quot; }}</p><p>如果<code>some_list</code>为<code>[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]</code>，那么输出将是<code>[&#39;a&#39;, &#39;b&#39;]</code>。</p><p>&nbsp;</p><h4><a name='header-n717' class='md-header-anchor '></a>33. striptags</h4><p>尽一切可能努力剥离所有[X] HTML标签。</p><p>{{ value|striptags }}</p><p>如果value为&quot;&lt;b&gt;cu ti&lt;/b&gt;&quot;, 输出结果为cuti(不带样式).</p><p>&nbsp;</p><h4><a name='header-n730' class='md-header-anchor '></a>34. time</h4><p>根据给定的格式格式化时间。</p><blockquote><p>实例:</p><p>now = datetime.datetime.now()</p><p>{{ now|time:&#39;H:i:s&#39; }}</p><p>输出类似:</p><p>13:25:53</p></blockquote><p>&nbsp;</p><h3><a name='header-n751' class='md-header-anchor '></a>35. timesince</h3><p>将日期格式设为自该日期起的时间（例如，“4天，6小时”）。</p><blockquote><p>实例:</p><p>now = datetime.datetime.now()</p><p>blog_date = now - datetime.timedelta(days=2)</p><p>{{ blog_date|timesince:now }}</p><p>{{ now|timesince:blog_date }}</p><p>输出类似:</p><p>2 days
+0 minutes</p></blockquote><p>&nbsp;</p><h4><a name='header-n786' class='md-header-anchor '></a>36. timeuntil</h4><p>与timesince类似</p><blockquote><p>实例:</p><p>now = datetime.datetime.now()</p><p>blog_date = now - datetime.timedelta(days=2)</p><p>{{ blog_date|timeuntil:now }}</p><p>{{ now|timeuntil:blog_date }}</p><p>输出类似:</p><p>0 minutes
+2 days</p></blockquote><p>&nbsp;</p><h4><a name='header-n812' class='md-header-anchor '></a>37. title</h4><p>将字符串中的每个单词首字母转为大写</p><p>{{ value|title }}</p><p>如果<code>value</code>为<code>“my FIRST post”</code>，输出将为<code>“My First Post”</code>。</p><p>&nbsp;</p><h4><a name='header-n827' class='md-header-anchor '></a>38. truncatechars</h4><p>如果字符串字符多于指定的字符数量，那么会被截断。 截断的字符串将以可翻译的省略号序列（“...”）结尾。</p><p>{{ value|truncatechars:9 }}</p><p>如果<code>value</code>为<code>“myFIRSTpost”</code>，输出将为<code>“MyFirst...”</code>。</p><p>&nbsp;</p><h4><a name='header-n839' class='md-header-anchor '></a>39.truncatewords</h4><p>在一定数量的字后截断字符串。</p><p>{{ value|truncatewords:2 }}</p><p>如果<code>value</code>为<code>“my name is post”</code>，输出将为<code>“My name ...”</code>。</p><p>&nbsp;</p><h4><a name='header-n851' class='md-header-anchor '></a>40. upper</h4><p>将字符串转换为大写形式</p><p>{{ value|upper }}</p><p>如果<code>value</code>是<code>abc</code>, 则输出将为<code>ABC</code></p><p>&nbsp;</p><h4><a name='header-n863' class='md-header-anchor '></a>41. urlencode</h4><p>转义要在URL中使用的值。</p><p>{{ value|urlencode }}</p><p>如果<code>value</code>为<code>&quot;https://www.example.org/foo?a=b&amp;c=d&quot;</code>，输出将为<code>&quot;https%3A//www.example.org/foo%3Fa%3Db%26c%3Dd&quot;</code></p><p>可以提供包含不应该转义的字符的可选参数。</p><p>如果未提供，则&#39;/&#39;字符被假定为安全的。 当<em>所有</em>字符应该转义时，可以提供空字符串。 像这样：</p><p>{{ value|urlencode:&quot;&quot; }}</p><p>如果<code>value</code>为<code>&quot;https://www.example.org/&quot;</code>，输出将为<code>&quot;https%3A%2F%2Fwww.example.org%2F&quot;</code></p><p>&nbsp;</p><h4><a name='header-n888' class='md-header-anchor '></a>42. wordcount</h4><p>返回字数(单词数)</p><p>{{ value|wordcount }}</p><p>如果<code>value</code>是<code>“Joel is a slug”，输出将为4</code></p><p>&nbsp;</p><h4><a name='header-n900' class='md-header-anchor '></a>43. wordwrap</h4><p>以指定的行长度换行单词。</p><p>&nbsp;</p></div>
+</body>
+</html>

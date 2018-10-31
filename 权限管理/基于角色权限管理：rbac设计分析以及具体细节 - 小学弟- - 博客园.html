@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://www.cnblogs.com/xiao-xue-di/p/9872764.html -->
+<html lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="origin">
+<title>基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园</title>
+<meta property="og:description" content="权限管理 设计分析以及具体细节 说起权限我们大家都知道，不一样的角色会有不一样的权限。 比如就像学生管理系统一样，管理员，老师，学生之间的权限都是不一样的，那么展示的页面也是不一样的。 所以，我们现在">
+<link type="text/css" rel="stylesheet" href="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/bundle-SimpleBlue.css">
+<link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/bundle-SimpleBlue-mobile.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/xiao-xue-di/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/xiao-xue-di/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/xiao-xue-di/wlwmanifest.xml">
+<script src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/f.txt"></script><script src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/amp4ads-host-v0.js"></script><script src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/pubads_impl_rendering_266.js"></script><script async="" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/analytics.js"></script><script type="text/javascript" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/encoder.js"></script><script src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/jquery-2.2.0.min.js"></script>
+<script type="text/javascript">var currentBlogApp = 'xiao-xue-di', cb_enable_mathjax=false;var isLogined=true;</script>
+<script src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/blog-common.js" type="text/javascript"></script>
+<link rel="preload" href="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/f(1).txt" as="script"><script type="text/javascript" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/f(1).txt"></script><script src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/pubads_impl_266.js" async=""></script><link rel="prefetch" href="https://tpc.googlesyndication.com/safeframe/1-0-30/html/container.html"></head>
+<body>
+<a name="top"></a>
+
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+		
+<!--done-->
+<div class="title"><a id="Header1_HeaderTitle" class="headermaintitle" href="https://www.cnblogs.com/xiao-xue-di/">小学弟-</a></div>
+<div class="subtitle"></div>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">博客园</a></li>
+<li id="nav_myhome"><a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/xiao-xue-di/">首页</a></li>
+<li id="nav_newpost"><a id="blog_nav_newpost" class="menu" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li id="nav_contact"><a id="blog_nav_contact" class="menu" rel="nofollow" href="https://msg.cnblogs.com/send/%E5%B0%8F%E5%AD%A6%E5%BC%9F-">联系</a></li>
+<li id="nav_rss"><a id="blog_nav_rss" class="menu" href="https://www.cnblogs.com/xiao-xue-di/rss">订阅</a>
+<!--<a id="blog_nav_rss_image" class="aHeaderXML" href="https://www.cnblogs.com/xiao-xue-di/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li id="nav_admin"><a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+
+		<div class="blogStats">
+			
+			<div id="blog_stats">
+<!--done-->
+随笔-295&nbsp;
+文章-0&nbsp;
+评论-2&nbsp;
+</div>
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="https://www.cnblogs.com/xiao-xue-di/p/9872764.html">基于角色权限管理：rbac设计分析以及具体细节</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body" class="blogpost-body"><h1>&nbsp;</h1>
+<h1><span style="font-size: 18pt">权限管理---设计分析以及具体细节</span></h1>
+<p>说起权限我们大家都知道，不一样的角色会有不一样的权限。</p>
+<p>比如就像学生管理系统一样，管理员，老师，学生之间的权限都是不一样的，那么展示的页面也是不一样的。</p>
+<p>所以，我们现在来看看具体操作。</p>
+<p>&nbsp;</p>
+<p>目标：生成一个独立的组件，到哪都能用！（是不是很厉害）</p>
+<p>&nbsp;</p>
+<p><span style="font-size: 18pt; color: #ff0000">步骤</span></p>
+<p><span style="font-size: 18pt; color: #ff0000">一、先创建一个项目，建立一个app01和rbac的应用</span></p>
+<p><span style="font-size: 18pt; color: #ff0000">二、表结构的设计</span></p>
+<p>　　1、先看配置文件合适不，给创建的rbac在配置文件里面设置一下<br>　　&nbsp; 找到INSTALLED_APPS=['rbac']</p>
+<p>　　<img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/1328551-20181029195651248-1141557403.png" alt=""></p>
+<p>&nbsp;</p>
+<p>&nbsp;　　2、 表结构设计　　　　　　</p>
+<p>　　　　<span style="color: #ff0000">models中创建类：五个类，七张表</span><br><span style="color: #ff0000">　　　　角色表：</span><br><span style="color: #ff0000">　　　　用户表：</span><br><span style="color: #ff0000">　　　　权限表：</span></p>
+<p><span style="color: #ff0000">　　　　权限组表：</span></p>
+<p><span style="color: #ff0000">　　　　菜单表：&nbsp;</span></p>
+<p><span style="color: #ff0000">　　　　角色表和权限表是多对多的关系（一个角色可以有多个权限，一个权限可以对应多个角色）</span><br><span style="color: #ff0000">　　　　用户表和角色表是多对多的关系（一个用户可以有多个角色，一个角色有多个用户）</span></p>
+<p><span style="color: #ff0000">　　　　所以有会多生成两张关系表</span></p>
+<p><span style="color: #ff0000">　　　　一个菜单下面有多个组</span></p>
+<p><span style="color: #ff0000">　　　　一个组下面有多个菜单</span></p>
+<p><span style="color: #ff0000">　　　　一个菜单下面有多个权限</span></p>
+<p><span style="color: #ff0000">　<img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/1328551-20181029195910912-1897494955.png" alt=""></span></p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #0000ff">from</span> django.db <span style="color: #0000ff">import</span><span style="color: #000000"> models
+
+</span><span style="color: #008000">#</span><span style="color: #008000"> Create your models here.</span>
+<span style="color: #0000ff">class</span><span style="color: #000000"> Role(models.Model):
+    title </span>= models.CharField(max_length=32,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">角色</span><span style="color: #800000">"</span><span style="color: #000000">)
+    permissions </span>= models.ManyToManyField(to=<span style="color: #800000">"</span><span style="color: #800000">Permission</span><span style="color: #800000">"</span>,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">拥有权限的角色</span><span style="color: #800000">"</span>,blank=True)  <span style="color: #008000">#</span><span style="color: #008000">权限和角色是多对多的关系</span>
+
+    <span style="color: #0000ff">def</span> <span style="color: #800080">__str__</span><span style="color: #000000">(self):
+        </span><span style="color: #0000ff">return</span><span style="color: #000000"> self.title
+    </span><span style="color: #0000ff">class</span><span style="color: #000000"> Meta:
+        verbose_name_plural </span>= <span style="color: #800000">"</span><span style="color: #800000">角色表</span><span style="color: #800000">"</span>
+
+<span style="color: #0000ff">class</span><span style="color: #000000"> Permission(models.Model):
+    title </span>= models.CharField(max_length=32,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">权限名</span><span style="color: #800000">"</span><span style="color: #000000">)
+    url </span>= models.CharField(max_length=32,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">带正则的url</span><span style="color: #800000">"</span><span style="color: #000000">)
+    codes </span>= models.CharField(max_length=32,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">代码</span><span style="color: #800000">"</span><span style="color: #000000">)
+    group </span>= models.ForeignKey(to=<span style="color: #800000">"</span><span style="color: #800000">Group</span><span style="color: #800000">"</span>,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">所属组</span><span style="color: #800000">"</span>,blank=True)  <span style="color: #008000">#</span><span style="color: #008000">组和权限是一对多的关系，一个组有多个权限</span>
+    menu_gp = models.ForeignKey(to=<span style="color: #800000">'</span><span style="color: #800000">Permission</span><span style="color: #800000">'</span>,related_name=<span style="color: #800000">'</span><span style="color: #800000">aaa</span><span style="color: #800000">'</span>,null=True,blank=True,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">组内菜单</span><span style="color: #800000">"</span><span style="color: #000000">)
+    </span><span style="color: #0000ff">def</span> <span style="color: #800080">__str__</span><span style="color: #000000">(self):
+        </span><span style="color: #0000ff">return</span><span style="color: #000000"> self.title
+    </span><span style="color: #0000ff">class</span><span style="color: #000000"> Meta:
+        verbose_name_plural </span>= <span style="color: #800000">"</span><span style="color: #800000">权限表</span><span style="color: #800000">"</span>
+
+<span style="color: #0000ff">class</span><span style="color: #000000"> UserInfo(models.Model):
+    name </span>= models.CharField(max_length=32,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">姓名</span><span style="color: #800000">"</span><span style="color: #000000">)
+    password </span>= models.CharField(max_length=64,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">密码</span><span style="color: #800000">"</span><span style="color: #000000">)
+    email </span>= models.CharField(max_length=32,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">邮箱</span><span style="color: #800000">"</span><span style="color: #000000">)
+    roles </span>= models.ManyToManyField(to=<span style="color: #800000">"</span><span style="color: #800000">Role</span><span style="color: #800000">"</span>,blank=True)  <span style="color: #008000">#</span><span style="color: #008000">用户和角色是多对多的关系</span>
+    <span style="color: #0000ff">def</span> <span style="color: #800080">__str__</span><span style="color: #000000">(self):
+        </span><span style="color: #0000ff">return</span><span style="color: #000000"> self.name
+    </span><span style="color: #0000ff">class</span><span style="color: #000000"> Meta:
+        verbose_name_plural </span>= <span style="color: #800000">"</span><span style="color: #800000">用户表</span><span style="color: #800000">"</span>
+
+<span style="color: #0000ff">class</span><span style="color: #000000"> Group(models.Model):
+    title </span>= models.CharField(max_length=32,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">组名称</span><span style="color: #800000">"</span><span style="color: #000000">)
+    menu </span>= models.ForeignKey(to=<span style="color: #800000">"</span><span style="color: #800000">Menu</span><span style="color: #800000">"</span>,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">组内菜单</span><span style="color: #800000">"</span>,blank=True)  <span style="color: #008000">#</span><span style="color: #008000">一个组下有多个菜单</span>
+    <span style="color: #0000ff">def</span> <span style="color: #800080">__str__</span><span style="color: #000000">(self):
+        </span><span style="color: #0000ff">return</span><span style="color: #000000"> self.title
+    </span><span style="color: #0000ff">class</span><span style="color: #000000"> Meta:
+        verbose_name_plural </span>= <span style="color: #800000">"</span><span style="color: #800000">权限组</span><span style="color: #800000">"</span>
+
+<span style="color: #0000ff">class</span><span style="color: #000000"> Menu(models.Model):
+    caption </span>= models.CharField(max_length=32,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">菜单</span><span style="color: #800000">"</span><span style="color: #000000">)
+    </span><span style="color: #0000ff">def</span> <span style="color: #800080">__str__</span><span style="color: #000000">(self):
+        </span><span style="color: #0000ff">return</span><span style="color: #000000"> self.caption
+    </span><span style="color: #0000ff">class</span><span style="color: #000000"> Meta:
+        verbose_name_plural </span>= <span style="color: #800000">"</span><span style="color: #800000">菜单表</span><span style="color: #800000">"</span></pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p><span style="font-size: 16px; color: #ff0000">为什么要多加个code列和权限组表呢？</span></p>
+<p><span style="font-size: 16px">1、我们一般是先看到的是列表页面，在这个页面上是否显示添加，是否显示编辑，是否显示删除，</span></p>
+<p><span style="font-size: 16px">都是需要判断的</span><em id="__mceDel"><span style="font-size: 16px">有无添加权限，有无删除权限，有无编辑权限，我们可以给每一个url一个代号</span></em></p>
+<p>&nbsp;</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre>dict =<span style="color: #000000"> {
+    </span>1<span style="color: #000000">:{ 　　　　　　　　　　    　　 　　代号
+        　　</span>/userinfo/<span style="color: #000000">        　　　　list
+　　　　　　 </span>/userinfo/add/<span style="color: #000000"> 　　　　　　add
+　　　　　　 </span>/userinfo/<span style="color: #0000ff">del</span>(\d+)/ 　　　<span style="color: #0000ff">del</span> 
+　　　　　　 /userinfo/edit(\d+)/<span style="color: #000000"> 　　 edit
+　　　　}
+　　}</span></pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;</p>
+<p>不仅在列表页面需要知道他有那些权限，在其他页面也知道他有那些权限<br>所以上面的方案还是有点不好，那么我们采取下面的方案。将代号取出来放在一个列表里面</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre>dict =<span style="color: #000000"> {
+　　　　　　</span>1<span style="color: #000000">:{
+        　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">codes</span><span style="color: #800000">"</span>:[<span style="color: #800000">"</span><span style="color: #800000">list</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">add</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">del</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">edit</span><span style="color: #800000">"</span><span style="color: #000000">]
+   　　  　　　　　　urls:[
+　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/userinfo/</span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/userinfo/add</span><span style="color: #800000">"</span>/<span style="color: #000000">,
+　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/userinfo/del(\d+)/ </span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/userinfo/edit(\d+)/ </span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　]    
+　　　　　　　　}
+　　　　　　</span>2<span style="color: #000000">:{
+　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">codes</span><span style="color: #800000">"</span>:{<span style="color: #800000">"</span><span style="color: #800000">list</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">add</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">del</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">edit</span><span style="color: #800000">"</span><span style="color: #000000">}
+　　　　　　　　　　　 urls:[
+　　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/order</span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/order/add</span><span style="color: #800000">"</span>/<span style="color: #000000">,
+　　　　　　　　　　　　　　　　  </span><span style="color: #800000">"</span><span style="color: #800000">/order/del(\d+)/ </span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/order/edit(\d+)/ </span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　　]    
+　　　　　　　}
+}</span></pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;</p>
+<p><br class="Apple-interchange-newline"><span style="color: #ff0000">把这个字典存到session中</span><br><span style="color: #ff0000">当你访问页面的时候我就知道你有什么权限</span><br><span style="color: #ff0000">一个url对应一个code&nbsp;</span><br><span style="color: #ff0000">多个url对应一个组</span></p>
+<p><span style="color: #ff0000">注意：</span><br><span style="color: #ff0000">　　关联字段 null = True&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;数据库用的时候可以为空</span><br><span style="color: #ff0000">　　关联字段 blank = True&nbsp;&nbsp; &nbsp;&nbsp;admin用的时候可以为空</span></p>
+<p>当出现错误</p>
+<p><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/1328551-20181029200454149-589116306.png" alt=""></p>
+<p>解决办法：</p>
+<pre>python manage.py migrate --fake 废弃</pre>
+<p>&nbsp;</p>
+<p><span style="font-size: 14pt; color: #ff0000">三、通过django-admin录入权限数据</span></p>
+<p>&nbsp;</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre>-<span style="color: #000000"> 先创建一个超级用户 python3 manage.py createsuperuser
+　　　　</span>-<span style="color: #000000"> 用户名 root
+　　　　</span>-<span style="color: #000000"> 密码 root1234
+　　　　</span>-<span style="color: #000000"> 在admin.py 中
+　　　　　　  </span><span style="color: #0000ff">from</span> rbac <span style="color: #0000ff">import</span><span style="color: #000000"> models
+　　　　　　  admin.site.register(models.Permission)
+　　　　　　  admin.site.register(models.Role)
+　　　　　　  admin.site.register(models.UserInfo)
+　　　　　　这样的话上去的是英文的，如果你想让中文显示就在类中加一个类
+　　　　　　  </span><span style="color: #0000ff">class</span><span style="color: #000000"> Meta:
+　　　　　　     verbose_name_plural </span>= <span style="color: #800000">"</span><span style="color: #800000">权限表</span><span style="color: #800000">"</span>
+　　　　　　- 当你给关联字段录入数据的时候会有错误提示，那么在类中你的那个关联字段在加一个属性blank =<span style="color: #000000"> True 可以为空
+　　　　　　permissions </span>= models.ManyToManyField(to=<span style="color: #800000">"</span><span style="color: #800000">Permission</span><span style="color: #800000">"</span>,verbose_name=<span style="color: #800000">"</span><span style="color: #800000">具有的所有权限</span><span style="color: #800000">"</span>, blank=True)</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;</p>
+<p><span style="font-size: 14pt; color: #ff0000">四、编写登录</span></p>
+<p>1.编写登录<br>2.如果用户验证成功就设置session<br>3.先查出当前用户的所有的权限<br>4.从这些权限中找到所有的url,把这些url放到session中<br>&nbsp; &nbsp;这些都是在rbac里面的操作，如果我们做一些复杂的操作，可能会有好多的代码<br>　我们写rbac的目的是做成一个公共的组件，为了让别人省事<br>　我们在创建一个server的文件夹，里面创建一个init_permission的py文件。</p>
+<p>　结构化数据：方便以后做操作。。。</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre>dict =<span style="color: #000000"> {
+　　　　　　</span>1<span style="color: #000000">:{
+        　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">codes</span><span style="color: #800000">"</span>:[<span style="color: #800000">"</span><span style="color: #800000">list</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">add</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">del</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">edit</span><span style="color: #800000">"</span><span style="color: #000000">]
+   　　  　　　　　　urls:[
+　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/userinfo/</span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/userinfo/add</span><span style="color: #800000">"</span>/<span style="color: #000000">,
+　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/userinfo/del(\d+)/ </span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/userinfo/edit(\d+)/ </span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　]    
+　　　　　　　　}
+　　　　　　</span>2<span style="color: #000000">:{
+　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">codes</span><span style="color: #800000">"</span>:{<span style="color: #800000">"</span><span style="color: #800000">list</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">add</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">del</span><span style="color: #800000">"</span>,<span style="color: #800000">"</span><span style="color: #800000">edit</span><span style="color: #800000">"</span><span style="color: #000000">}
+　　　　　　　　　　　 urls:[
+　　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/order</span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/order/add</span><span style="color: #800000">"</span>/<span style="color: #000000">,
+　　　　　　　　　　　　　　　　  </span><span style="color: #800000">"</span><span style="color: #800000">/order/del(\d+)/ </span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　　　　</span><span style="color: #800000">"</span><span style="color: #800000">/order/edit(\d+)/ </span><span style="color: #800000">"</span><span style="color: #000000">,
+　　　　　　　　　　　　　　　]    
+　　　　　　　}
+}</span></pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>5.拿到用户请求的url去session里面做验证<br>　　获取当前请求的url<br>　　获取session中保存当前用户的权限<br>　　然后开始验证<br>　　如果匹配成功就有权访问<br>　　如果匹配不成功就无权访问<br>　　用re去匹配的时候，re.match(/userinfo/,/userinfo/add) #都能匹配到<br>　　那么要记得在匹配正则的时候加个起始符和终止符regex = "^{0}$".format(url)<br>　　def login(request):<br>　　　　.....<br>　　　　设置session<br>　　def index(request):<br>　　　　....<br>　　　　获取session<br>　　def userinfo(request):<br>　　　　获取session<br>这样如果有好多个函数，就的重复好多代码，我们可以用中间件来处理<br>中间件和装饰器的区别：<br>　　中间件用来做批量处理<br>　　如果函数不多的话可以用加装饰器的方法</p>
+<p>&nbsp;</p>
+<p><span style="font-size: 14pt; color: #ff0000">五、中间件：获取session，并且当用户匹配成功的时候，先把code保存在request中，方便以后判断</span></p>
+<p>1、要设置表名单</p>
+<p><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/1328551-20181029201134110-445967752.png" alt=""></p>
+<p>&nbsp;</p>
+<p>2、必须继承MiddlewareMixin这个类</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #0000ff">class</span><span style="color: #000000"> MiddlewareMixin(object):
+    </span><span style="color: #0000ff">def</span> <span style="color: #800080">__init__</span>(self, get_response=<span style="color: #000000">None):
+        self.get_response </span>=<span style="color: #000000"> get_response
+        super(MiddlewareMixin, self).</span><span style="color: #800080">__init__</span><span style="color: #000000">()
+
+    </span><span style="color: #0000ff">def</span> <span style="color: #800080">__call__</span><span style="color: #000000">(self, request):
+        response </span>=<span style="color: #000000"> None
+        </span><span style="color: #0000ff">if</span> hasattr(self, <span style="color: #800000">'</span><span style="color: #800000">process_request</span><span style="color: #800000">'</span><span style="color: #000000">):
+            response </span>=<span style="color: #000000"> self.process_request(request)
+        </span><span style="color: #0000ff">if</span> <span style="color: #0000ff">not</span><span style="color: #000000"> response:
+            response </span>=<span style="color: #000000"> self.get_response(request)
+        </span><span style="color: #0000ff">if</span> hasattr(self, <span style="color: #800000">'</span><span style="color: #800000">process_response</span><span style="color: #800000">'</span><span style="color: #000000">):
+            response </span>=<span style="color: #000000"> self.process_response(request, response)
+        </span><span style="color: #0000ff">return</span> response</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;</p>
+<p><span style="font-size: 18px; color: #ff0000">六、设计权限管理-----问题：在访问列表页面时，是否需要判断有无添加权限、有无删除权限、有无编辑权限。&nbsp;</span></p>
+<p>&nbsp;</p>
+<p>views.py</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #0000ff">def</span><span style="color: #000000"> userinfo(request):
+    </span><span style="color: #008000">#</span><span style="color: #008000"> 方式一</span>
+    <span style="color: #008000">#</span><span style="color: #008000"> Page_permission = request.permission_code_list</span>
+    <span style="color: #008000">#</span><span style="color: #008000"> 方式二：实例化</span>
+    page_permission =<span style="color: #000000"> BasePagePermission(request.permission_code_list)
+    </span><span style="color: #0000ff">print</span>(<span style="color: #800000">"</span><span style="color: #800000">page_permission</span><span style="color: #800000">"</span><span style="color: #000000">,request.permission_code_list)
+    data_list </span>=<span style="color: #000000"> [
+        {</span><span style="color: #800000">"</span><span style="color: #800000">id</span><span style="color: #800000">"</span>:1,<span style="color: #800000">"</span><span style="color: #800000">name</span><span style="color: #800000">"</span>:<span style="color: #800000">"</span><span style="color: #800000">xxx1</span><span style="color: #800000">"</span><span style="color: #000000">},
+        {</span><span style="color: #800000">"</span><span style="color: #800000">id</span><span style="color: #800000">"</span>:2,<span style="color: #800000">"</span><span style="color: #800000">name</span><span style="color: #800000">"</span>:<span style="color: #800000">"</span><span style="color: #800000">xxx2</span><span style="color: #800000">"</span><span style="color: #000000">},
+        {</span><span style="color: #800000">"</span><span style="color: #800000">id</span><span style="color: #800000">"</span>:3,<span style="color: #800000">"</span><span style="color: #800000">name</span><span style="color: #800000">"</span>:<span style="color: #800000">"</span><span style="color: #800000">xxx3</span><span style="color: #800000">"</span><span style="color: #000000">},
+        {</span><span style="color: #800000">"</span><span style="color: #800000">id</span><span style="color: #800000">"</span>:4,<span style="color: #800000">"</span><span style="color: #800000">name</span><span style="color: #800000">"</span>:<span style="color: #800000">"</span><span style="color: #800000">xxx4</span><span style="color: #800000">"</span><span style="color: #000000">},
+        {</span><span style="color: #800000">"</span><span style="color: #800000">id</span><span style="color: #800000">"</span>:5,<span style="color: #800000">"</span><span style="color: #800000">name</span><span style="color: #800000">"</span>:<span style="color: #800000">"</span><span style="color: #800000">xxx5</span><span style="color: #800000">"</span><span style="color: #000000">},
+    ]
+    </span><span style="color: #0000ff">return</span> render(request,<span style="color: #800000">"</span><span style="color: #800000">userinfo.html</span><span style="color: #800000">"</span>,{<span style="color: #800000">"</span><span style="color: #800000">data_list</span><span style="color: #800000">"</span>:data_list,<span style="color: #800000">"</span><span style="color: #800000">page_permission</span><span style="color: #800000">"</span>:page_permission})</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>在模板userinfo.html中：两种使用方式</p>
+<p>方式一：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre>&lt;table&gt;<span style="color: #000000">
+    {</span>% <span style="color: #0000ff">if</span> <span style="color: #800000">"</span><span style="color: #800000">add</span><span style="color: #800000">"</span> <span style="color: #0000ff">in</span> Page_permission %<span style="color: #000000">}
+        </span>&lt;a href=<span style="color: #800000">"</span><span style="color: #800000">#</span><span style="color: #800000">"</span>&gt;添加&lt;/a&gt;<span style="color: #000000">
+    {</span>% endif %<span style="color: #000000">}
+    {</span>% <span style="color: #0000ff">for</span> row <span style="color: #0000ff">in</span> data_list %<span style="color: #000000">}
+         </span>&lt;tr&gt;
+            &lt;td&gt;{{ row.id }}&lt;/td&gt;
+            &lt;td&gt;{{ row.name }}&lt;/td&gt;<span style="color: #000000">
+             {</span>% <span style="color: #0000ff">if</span> <span style="color: #800000">"</span><span style="color: #800000">edit</span><span style="color: #800000">"</span> <span style="color: #0000ff">in</span> Page_permission %<span style="color: #000000">}
+                </span>&lt;td&gt;&lt;a href=<span style="color: #800000">"</span><span style="color: #800000">#</span><span style="color: #800000">"</span>&gt;编辑&lt;/a&gt;&lt;/td&gt;<span style="color: #000000">
+             {</span>% endif %<span style="color: #000000">}
+           {</span>% <span style="color: #0000ff">if</span> <span style="color: #800000">"</span><span style="color: #800000">del</span><span style="color: #800000">"</span> <span style="color: #0000ff">in</span> Page_permission %<span style="color: #000000">}
+                 </span>&lt;td&gt;{&lt;a href=<span style="color: #800000">"</span><span style="color: #800000">#</span><span style="color: #800000">"</span>&gt;删除&lt;/a&gt;&lt;/td&gt;<span style="color: #000000">
+           {</span>% endif %<span style="color: #000000">}
+        </span>&lt;/tr&gt;<span style="color: #000000">
+    {</span>% endfor %<span style="color: #000000">}
+</span>&lt;/table&gt;</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>如果不想每一个都判断，就用方式二</p>
+<p>方式二：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #000000">把permission_code_list处理一下
+在views中定义一个类
+</span><span style="color: #0000ff">class</span><span style="color: #000000"> BasePagePermission(object):
+    </span><span style="color: #0000ff">def</span> <span style="color: #800080">__init__</span><span style="color: #000000">(self,code_list):
+        self.code_list </span>=<span style="color: #000000"> code_list
+    </span><span style="color: #0000ff">def</span><span style="color: #000000"> has_add(self):
+        </span><span style="color: #0000ff">if</span> <span style="color: #800000">"</span><span style="color: #800000">add</span><span style="color: #800000">"</span> <span style="color: #0000ff">in</span><span style="color: #000000"> self.code_list:
+            </span><span style="color: #0000ff">return</span><span style="color: #000000"> True
+    </span><span style="color: #0000ff">def</span><span style="color: #000000"> has_del(self):
+        </span><span style="color: #0000ff">if</span> <span style="color: #800000">"</span><span style="color: #800000">del</span><span style="color: #800000">"</span> <span style="color: #0000ff">in</span><span style="color: #000000"> self.code_list:
+            </span><span style="color: #0000ff">return</span><span style="color: #000000"> True
+    </span><span style="color: #0000ff">def</span><span style="color: #000000"> has_edit(self):
+        </span><span style="color: #0000ff">if</span> <span style="color: #800000">"</span><span style="color: #800000">edit</span><span style="color: #800000">"</span> <span style="color: #0000ff">in</span><span style="color: #000000"> self.code_list:
+            </span><span style="color: #0000ff">return</span><span style="color: #000000"> True
+实例化：page_permission </span>=<span style="color: #000000"> BasePagePermission(request.permission_code_list)
+在模板中
+</span>&lt;table&gt;<span style="color: #000000">
+    {</span>% <span style="color: #0000ff">if</span> page_permission.has_add %<span style="color: #000000">}
+        </span>&lt;a href=<span style="color: #800000">"</span><span style="color: #800000">#</span><span style="color: #800000">"</span>&gt;添加&lt;/a&gt;<span style="color: #000000">
+    {</span>% endif %<span style="color: #000000">}
+    {</span>% <span style="color: #0000ff">for</span> row <span style="color: #0000ff">in</span> data_list %<span style="color: #000000">}
+         </span>&lt;tr&gt;
+            &lt;td&gt;{{ row.id }}&lt;/td&gt;
+            &lt;td&gt;{{ row.name }}&lt;/td&gt;<span style="color: #000000">
+             {</span>% <span style="color: #0000ff">if</span> page_permission.has_edit %<span style="color: #000000">}
+                </span>&lt;td&gt;&lt;a href=<span style="color: #800000">"</span><span style="color: #800000">#</span><span style="color: #800000">"</span>&gt;编辑&lt;/a&gt;&lt;/td&gt;<span style="color: #000000">
+             {</span>% endif %<span style="color: #000000">}
+           {</span>% <span style="color: #0000ff">if</span> page_permission.has_del %<span style="color: #000000">}
+                 </span>&lt;td&gt;{&lt;a href=<span style="color: #800000">"</span><span style="color: #800000">#</span><span style="color: #800000">"</span>&gt;删除&lt;/a&gt;&lt;/td&gt;<span style="color: #000000">
+           {</span>% endif %<span style="color: #000000">}
+        </span>&lt;/tr&gt;<span style="color: #000000">
+    {</span>% endfor %<span style="color: #000000">}
+</span>&lt;/table&gt;</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;</p>
+<p><span style="font-size: 18px; color: #ff0000">七、设计菜单管理</span></p>
+<p>1、如何生成菜单</p>
+<p>2、怎么让这些菜单分级显示并且如果当前访问的url权限默认展开如果是组内菜单就加粗或者变红</p>
+<p>3、非菜单url，默认选中原菜单。（如果你是点击用户列表进来的，那么你看到页面了，</p>
+<p>　&nbsp; 如果你点击添加的时候，你的那个用户列看不见了，这就不好了。</p>
+<p>&nbsp; &nbsp; &nbsp;所以要设计当你点击添加按钮的时候，那个用户列表被默认选中）</p>
+<p>&nbsp;</p>
+<p>菜单管理<br>　　菜单一<br>　　　　用户管理<br>　　　　权限管理<br>　　菜单二<br>　　　　订单管理<br>　　　　角色管理</p>
+<p>分级做了菜单。这些菜单该显示什么菜单？是当前用户登录之后从数据库拿到这个用户拥有的权限，然后把权限搞成菜单</p>
+<p>&nbsp;</p>
+<p>在表里面设计了一个组内菜单（自关联 ），当menu_gp_id为NULL就代表可以作为菜单</p>
+<p><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/1328551-20181029202023183-2024879122.png" alt=""></p>
+<p>&nbsp;</p>
+<p>1、在初始化的时候，初始化权限信息，获取权限信息并放置在session中</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre>menu_list =<span style="color: #000000"> []
+    </span><span style="color: #0000ff">for</span> item <span style="color: #0000ff">in</span><span style="color: #000000"> permission_list:
+        tpl </span>=<span style="color: #000000"> {
+            </span><span style="color: #800000">"</span><span style="color: #800000">id</span><span style="color: #800000">"</span>:item[<span style="color: #800000">"</span><span style="color: #800000">permissions__id</span><span style="color: #800000">"</span><span style="color: #000000">],
+            </span><span style="color: #800000">"</span><span style="color: #800000">title</span><span style="color: #800000">"</span>:item[<span style="color: #800000">"</span><span style="color: #800000">permissions__title</span><span style="color: #800000">"</span><span style="color: #000000">],
+            </span><span style="color: #800000">"</span><span style="color: #800000">url</span><span style="color: #800000">"</span>:item[<span style="color: #800000">"</span><span style="color: #800000">permissions__url</span><span style="color: #800000">"</span><span style="color: #000000">],
+            </span><span style="color: #800000">"</span><span style="color: #800000">menu_gp_id</span><span style="color: #800000">"</span>:item[<span style="color: #800000">"</span><span style="color: #800000">permissions__menu_gp_id</span><span style="color: #800000">"</span><span style="color: #000000">],
+            </span><span style="color: #800000">"</span><span style="color: #800000">menu_id</span><span style="color: #800000">"</span>:item[<span style="color: #800000">"</span><span style="color: #800000">permissions__group__menu_id</span><span style="color: #800000">"</span><span style="color: #000000">],
+            </span><span style="color: #800000">"</span><span style="color: #800000">menu_title</span><span style="color: #800000">"</span>:item[<span style="color: #800000">"</span><span style="color: #800000">permissions__group__menu__caption</span><span style="color: #800000">"</span><span style="color: #000000">]
+        }
+        menu_list.append(tpl)
+    request.session[settings.PERMISSION_MENU_KEY] </span>= menu_list</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>因为是要在页面上渲染，一般我们会在视图函数的render里面加{"":变量}这样渲染，<br>但是还有个更好用的方法：用自定义的标签</p>
+<p>具体操作：<br>　　1、找到app创建一个templatetags的文件夹<br>　　2、然后在里面随便创建一个文件<br>　　3、导入form django.template import Library<br>　　　　　&nbsp; register = Library()</p>
+<p>　　　　　　方式一：<br>　　　　　　　　@register.simple_tag<br>　　　　　　　　def menu():<br>　　　　　　　　　　return "菜单"&nbsp; &nbsp; &nbsp;这里返回啥页面上就显示啥<br>　　　　　　　　然后在母版里面导入mnue.html<br>　　　　　　　　{% load rbac %}</p>
+<p>　　　　　　方式二：<br>　　　　　　　　@register.includsion_tag("xxx.html") #这里存放的是html文件，，，@register.includsion_tag("xxx.html")&nbsp; &nbsp;自动会读这个文件并且把返回值拿到在页面上渲染<br>　　　　　　　　def menu():<br>　　　　　　　　　　return "菜单"&nbsp; &nbsp; &nbsp;这里返回啥页面上就显示啥<br>　　　　　　　　“在母版中：{%menu_html&nbsp; request%}&nbsp; &nbsp; &nbsp;request是参数，记得要加上{% load rbac %}</p>
+<p>　　4、注意：<br>　　&nbsp; &nbsp; &nbsp; 如果有两个文件夹同名，避免发生冲突：就再创建一个文件夹包起来</p>
+<p>&nbsp;</p>
+<p>2、<strong>去Session中获取菜单相关信息，匹配当前URL，生成菜单</strong></p>
+<p><strong>①</strong>先把和菜单相关的所有字段取出来</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre>menu_list = [
+    {'id': 1, 'title': '用户列表', 'url': '/userinfo/', 'menu_gp_id': None, 'menu_id': 2, 'menu_title': '菜单二'}, 
+    {'id': 2, 'title': '添加用户', 'url': '/userinfo/add/', 'menu_gp_id': 1, 'menu_id': 2, 'menu_title': '菜单二'}, 
+    {'id': 3, 'title': '删除用户', 'url': '/userinfo/del/(\\d+)/', 'menu_gp_id': 1, 'menu_id': 2, 'menu_title': '菜单二'}, 
+    {'id': 4, 'title': '编辑用户', 'url': '/userinfo/edit/(\\d+)/', 'menu_gp_id': 1, 'menu_id': 2, 'menu_title': '菜单二'}, 
+    {'id': 5, 'title': '订单列表','url': '/order/', 'menu_gp_id': None, 'menu_id': 1, 'menu_title': '菜单一'}, 
+    {'id': 6, 'title': '添加订单', 'url': '/order/add/', 'menu_gp_id': 2, 'menu_id': 1, 'menu_title': '菜单一'}, 
+    {'id': 7, 'title': '删除订单', 'url': '/order/del/(\\d+)/', 'menu_gp_id': 2, 'menu_id': 1, 'menu_title': '菜单一'}, 
+    {'id': 8, 'title': '编辑订单', 'url': '/order/edit/(\\d+)/', 'menu_gp_id': 2, 'menu_id': 1, 'menu_title': '菜单一'}
+]</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;</p>
+<p><strong>②</strong>然后循环列表找出可以作为菜单的权限</p>
+<div class="cnblogs_code">
+<pre>{
+    1: {'id': 1, 'title': '用户列表', 'url': '/userinfo/', 'menu_gp_id': None, 'menu_id': 2, 'menu_title': '菜单二'}, 
+    5: {'id': 5, 'title': '订单列表', 'url': '/order/', 'menu_gp_id': None, 'menu_id': 1, 'menu_title': '菜单一'}
+}</pre>
+</div>
+<p>&nbsp;</p>
+<p><strong>③</strong>再次循环列表向上边的字典中添加active</p>
+<div class="cnblogs_code">
+<pre>{
+    1: {'id': 1, 'title': '用户列表', 'url': '/userinfo/', 'menu_gp_id': None, 'menu_id': 2, 'menu_title': '菜单二', 'active': True},
+    5: {'id': 5, 'title': '订单列表', 'url': '/order/', 'menu_gp_id': None, 'menu_id': 1, 'menu_title': '菜单一'}
+}</pre>
+</div>
+<p><strong>④</strong>结构化数据（吧上面得到的数据化成下面这样格式的，方便以后使用）</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre>{
+    1: {
+            'menu_id': 1,
+            'menu_title': '菜单一',
+            'active': None, 
+            'children': [
+                    {'title': '订单列表', 'url': '/order/', 'active': None}
+                ]
+            }
+    2: {
+        'menu_id': 2, 
+        'menu_title': '菜单二', 
+        'active': True,
+        'children': [
+                {'title': '用户列表', 'url': '/userinfo/', 'active': True}
+            ]
+        },
+    
+}</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;</p>
+<p><span style="font-size: 18pt; color: #ff0000">八、实现</span></p>
+<p><span style="font-size: 18pt; color: #ff0000">见下篇</span></p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="https://www.cnblogs.com/xiao-xue-di/category/1330247.html" target="_blank">权限管理</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(9872764,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+            <a id="green_channel_follow" onclick="follow(&#39;0ba3a8d2-be65-48fb-4311-08d54dba4453&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/xiao-xue-di/" target="_blank"><img src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/20180726081008.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/xiao-xue-di/">小学弟-</a><br>
+            <a href="http://home.cnblogs.com/u/xiao-xue-di/followees">关注 - 10</a><br>
+            <a href="http://home.cnblogs.com/u/xiao-xue-di/followers">粉丝 - 4</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(9872764,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">0</span>
+    </div>
+    <div class="buryit" onclick="votePost(9872764,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">0</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+<script type="text/javascript">
+    currentDiggType = 0;
+</script></div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="https://www.cnblogs.com/xiao-xue-di/p/9872751.html" class="p_n_p_prefix">« </a> 上一篇：<a href="https://www.cnblogs.com/xiao-xue-di/p/9872751.html" title="发布于2018-10-29 19:43">权限管理</a><br><a href="https://www.cnblogs.com/xiao-xue-di/p/9872768.html" class="p_n_p_prefix">» </a> 下一篇：<a href="https://www.cnblogs.com/xiao-xue-di/p/9872768.html" title="发布于2018-10-29 19:47">设计模式</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2018-10-29 19:46</span> <a href="https://www.cnblogs.com/xiao-xue-di/">小学弟-</a> 阅读(<span id="post_view_count">2</span>) 评论(<span id="post_comment_count">0</span>)  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=9872764" rel="nofollow">编辑</a> <a href="https://www.cnblogs.com/xiao-xue-di/p/9872764.html#" onclick="AddToWz(9872764);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,cb_blogId=410310,cb_entryId=9872764,cb_blogApp=currentBlogApp,cb_blogUserGuid='0ba3a8d2-be65-48fb-4311-08d54dba4453',cb_entryCreatedDate='2018/10/29 19:46:00';loadViewCount(cb_entryId);var cb_postType=1;</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="https://www.cnblogs.com/xiao-xue-di/p/9872764.html#" onclick="return RefreshPage();">刷新页面</a><a href="https://www.cnblogs.com/xiao-xue-di/p/9872764.html#top">返回顶部</a></div>
+<div id="comment_form_container"><script type="text/javascript" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/mention.js"></script>
+<div id="commentform_title">发表评论</div>
+<span id="tip_comment" style="color:Red"></span>
+<p>
+昵称：<input type="text" id="tbCommentAuthor" class="author" disabled="disabled" size="50" value="小学弟-">
+</p>
+<div class="commentbox_main">
+<div class="commentbox_title">
+<div class="commentbox_title_left">评论内容：</div>
+<div class="commentbox_title_right">
+<img id="ubb_quote" class="comment_icon" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/quote.gif" alt="引用" title="添加引用" onclick="insertUBB(&#39;tbCommentBody&#39;,&#39;quote&#39;)">
+<img id="ubb_bold" class="comment_icon" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/b.png" alt="粗体" title="添加粗体" onclick="insertUBB(&#39;tbCommentBody&#39;,&#39;b&#39;)">
+<img id="ubb_url" class="comment_icon" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/lk.png" alt="链接" title="添加链接" onclick="insertUbbUrl(&#39;tbCommentBody&#39;)">
+<img id="ubb_indent" class="comment_icon" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/indent.png" alt="缩进" title="添加首行缩进" onclick="insertIndent(&#39;tbCommentBody&#39;)">
+<img id="ubb_code" class="comment_icon" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/InsertCode.gif" alt="代码" title="添加代码" onclick="insertUbbCode()">
+<img id="ubb_img" class="comment_icon" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/img.gif" alt="图片" title="上传图片" onclick="OpenImageUploadWindow();">
+</div>
+</div>
+<div class="clear"></div>
+<textarea id="tbCommentBody" class="comment_textarea"></textarea>
+</div>
+<p id="commentbox_opt">
+<input id="btn_comment_submit" type="button" class="comment_btn" value="提交评论">
+<span id="span_comment_canceledit" style="display:none"><a href="javascript:void(0);" onclick="return CancelCommentEdit()">不改了</a></span>
+<a href="javascript:void(0);" onclick="return logout();">退出</a>
+</p>
+<div id="tip_comment2" style="color:Red"></div>
+<p>
+[Ctrl+Enter快捷键提交]
+</p>
+<div style="display:none">
+<span id="comment_edit_id"></span><span id="span_parentcomment_id"></span>
+<span id="span_parent_id"></span>
+<span id="span_comment_replyto"></span>
+<span id="span_comment_posted"></span>
+</div>
+</div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】超50万VC++源码: 大型组态工控、电力仿真CAD与GIS源码库！</a><br><a href="http://clickc.admaster.com.cn/c/a116493,b2949399,c1705,i0,m101,8a1,8b3,h" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-华为云&#39;)">【推荐】华为云11.11普惠季 血拼风暴 一促即发</a><br><a href="https://group.cnblogs.com/topic/80253.html" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-拼团&#39;)">【拼团】腾讯云服务器拼团活动又双叒叕来了！</a><br><a href="https://www.grapecity.com.cn/developer/spreadjs?utm_source=cnblogs&amp;utm_medium=blogpage&amp;utm_term=bottom&amp;utm_content=SpreadJS&amp;utm_campaign=community" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-SpreadJS&#39;)">【工具】SpreadJS纯前端表格控件，可嵌入应用开发的在线Excel</a><br><a href="https://cloud.tencent.com/act/domainsales?fromSource=gwzcw.1351351.1351351.1351351" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-域名&#39;)">【推荐】腾讯云新注册用户域名抢购1元起</a><br></div>
+<div id="opt_under_post"></div>
+<div id="cnblogs_c1" class="c_ad_block"><a href="https://cloud.tencent.com/act/pro/redis?fromSource=gwzcw.1559146.1559146.1559146" target="_blank"><img width="300" height="250" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/24442-20181023123922818-1967472495.jpg" alt="腾讯云1023" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;C1&#39;);"></a></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>系统推荐博文</b>:<br>·  <a href="https://www.cnblogs.com/windinwing/archive/2007/11/11/956043.html" target="_blank" onclick="clickRecomItmem(956043,&#39;uCfYSrC6NvGj+bjwYwlulykRhE3r79yDZCkL6SX7kHk8Ei0PTnFyRmQwxBBtldOBGGMy5qkkx0qveaUVI3W3iKFjQ16mOjNIN7AMzWA9IO9z1UiRTuQbDOPLcf0z3xqmPtsPlS+VNIA7Cjc=&#39;)">角色权限,RBAC</a><br>·  <a href="https://www.cnblogs.com/jiangshanduojiao/p/8946951.html" target="_blank" onclick="clickRecomItmem(8946951,&#39;jJqtloo79xyaVbIpZPgpMphC5jAR3SSSlFbYRmK6teyFf77A/gg+W4DAEIDwpN138bgTKXMzU56LOMGtBIijJAITNd/MGpU26WpK1YrLg09VUNTTBTsqCOZZ987eNnFhaKwhpbwwlCdz6e8=&#39;)">Django框架----权限管理(设计分析以及具体细节)</a><br>·  <a href="https://www.cnblogs.com/standcloud/articles/2635486.html" target="_blank" onclick="clickRecomItmem(2635486,&#39;5qVVRUL6Ad2zdprdU95H6XcGiZHqeq1Mw9EoE6MZAE3NGNB0teo3NcdkkNB7wlVMpNTe7HoTXLVg2ZTvPstQqeJqYFfm0X+fK3ypnlVX0sxXck5sAK0hVd681mnul8X86BqXr60NVQkZ+uM=&#39;)">权限管理：RBAC（基于角色的访问控制）的实现</a><br>·  <a href="https://www.cnblogs.com/cyjch/archive/2012/02/09/2344297.html" target="_blank" onclick="clickRecomItmem(2344297,&#39;vLd1t9Zl9tEqhiY7PkZ17IhjAnTiyWL7BmojYSUYFDTDc2FLvF9HKEax+GHlRkF2HZdU8EUuY4S/LUWZMeJPJOpe0hgjZ3tqKfMWrL9nCcad1uKAMZ9buwaltHai5oX4WdSOxCYdcZvoMPM=&#39;)">RBAC用户角色权限设计</a><br>·  <a href="https://www.cnblogs.com/wingofwind/articles/228897.html" target="_blank" onclick="clickRecomItmem(228897,&#39;QFeLs2oNz9CndLpmQRGRzkyNWTrJhW3y1K9HfFMHZonef+6RSp+Xu5KBcsKIy8L7s7qPsc+dFW2ADVJ7eZbJU8vhPg/P7KIksO4sNgEOY1A73x5kS+iwdIRrcZorHHFVnEAF2Lsdy8x4lFk=&#39;)">基于角色管理(RBAC)的权限系统</a><br></div></div>
+<script async="async" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/gpt.js"></script>
+<script>
+  var googletag = googletag || {};
+  googletag.cmd = googletag.cmd || [];
+</script>
+
+<script>
+  googletag.cmd.push(function() {
+    googletag.defineSlot('/1090369/C2', [468, 60], 'div-gpt-ad-1539008685004-0').addService(googletag.pubads());
+    googletag.pubads().enableSingleRequest();
+    googletag.enableServices();
+  });
+</script>
+<div id="cnblogs_c2" class="c_ad_block">
+    <div id="div-gpt-ad-1539008685004-0" style="height:60px; width:468px;" data-google-query-id="CIHS79TSq94CFQYgYAodob4LDw">
+    <script>
+    if (new Date() >= new Date(2018, 9, 13)) {
+        googletag.cmd.push(function() { googletag.display('div-gpt-ad-1539008685004-0'); });
+    }
+    </script>
+    <div id="google_ads_iframe_/1090369/C2_0__container__" style="border: 0pt none;"><iframe id="google_ads_iframe_/1090369/C2_0" title="3rd party ad content" name="google_ads_iframe_/1090369/C2_0" width="468" height="60" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" style="border: 0px; vertical-align: bottom;" data-load-complete="true" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/saved_resource.html"></iframe></div></div>
+</div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="https://kb.cnblogs.com/page/609730/" target="_blank">阿里云的这群疯子</a><br> ·  <a href="https://kb.cnblogs.com/page/606682/" target="_blank">为什么说 Java 程序员必须掌握 Spring Boot ？</a><br> ·  <a href="https://kb.cnblogs.com/page/606645/" target="_blank">在学习中，有一个比掌握知识更重要的能力</a><br> ·  <a href="https://kb.cnblogs.com/page/603663/" target="_blank">如何招到一个靠谱的程序员</a><br> ·  <a href="https://kb.cnblogs.com/page/573614/" target="_blank">一个故事看懂“区块链”</a><br></div>» <a href="https://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();
+    deliverAdC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);   
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><div id="profile_block">昵称：<a href="https://home.cnblogs.com/u/xiao-xue-di/">小学弟-</a><br>园龄：<a href="https://home.cnblogs.com/u/xiao-xue-di/" title="入园时间：2018-01-31">8个月</a><br>粉丝：<a href="https://home.cnblogs.com/u/xiao-xue-di/followers/">4</a><br>关注：<a href="https://home.cnblogs.com/u/xiao-xue-di/followees/">10</a><div id="p_b_follow"></div><script>getFollowStatus('0ba3a8d2-be65-48fb-4311-08d54dba4453')</script></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="calendar"><div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2018/09/01&#39;);return false;">&lt;</a></td><td align="center">2018年10月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2018/11/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">30</td><td align="center">1</td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/02.html"><u>2</u></a></td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/03.html"><u>3</u></a></td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/04.html"><u>4</u></a></td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/05.html"><u>5</u></a></td><td class="CalWeekendDay" align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/06.html"><u>6</u></a></td></tr><tr><td class="CalWeekendDay" align="center">7</td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/08.html"><u>8</u></a></td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/09.html"><u>9</u></a></td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/10.html"><u>10</u></a></td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/11.html"><u>11</u></a></td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/12.html"><u>12</u></a></td><td class="CalWeekendDay" align="center">13</td></tr><tr><td class="CalWeekendDay" align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/14.html"><u>14</u></a></td><td align="center">15</td><td align="center">16</td><td align="center">17</td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/18.html"><u>18</u></a></td><td align="center">19</td><td class="CalWeekendDay" align="center">20</td></tr><tr><td class="CalWeekendDay" align="center">21</td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/22.html"><u>22</u></a></td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/23.html"><u>23</u></a></td><td align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/24.html"><u>24</u></a></td><td align="center">25</td><td align="center">26</td><td class="CalWeekendDay" align="center">27</td></tr><tr><td class="CalWeekendDay" align="center">28</td><td class="CalTodayDay" align="center"><a href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10/29.html"><u>29</u></a></td><td align="center">30</td><td align="center">31</td><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td></tr><tr><td class="CalOtherMonthDay" align="center">4</td><td class="CalOtherMonthDay" align="center">5</td><td class="CalOtherMonthDay" align="center">6</td><td class="CalOtherMonthDay" align="center">7</td><td class="CalOtherMonthDay" align="center">8</td><td class="CalOtherMonthDay" align="center">9</td><td class="CalOtherMonthDay" align="center">10</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script></div>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
+<div id="sidebar_search" class="mySearch">
+<h3 class="catListTitle">搜索</h3>
+<div id="sidebar_search_box">
+<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
+<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
+</div>
+</div>
+
+</div><div id="sidebar_shortcut" class="sidebar-block">
+<div class="catListLink">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="https://www.cnblogs.com/xiao-xue-di/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/tag/" title="我的博客的标签列表">我的标签</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+<ul>
+
+</ul>
+</div>
+</div></div><div id="sidebar_toptags" class="sidebar-block"></div><div id="sidebar_categories">
+<div class="catListPostCategory">
+<h3 class="catListTitle">随笔分类</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="https://www.cnblogs.com/xiao-xue-di/category/1267128.html">ACM-C/C++(28)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="https://www.cnblogs.com/xiao-xue-di/category/1275156.html">ACM学习目录（大纲）(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="https://www.cnblogs.com/xiao-xue-di/category/1320813.html">Ajax(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="https://www.cnblogs.com/xiao-xue-di/category/1300076.html">Bootstrap(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="https://www.cnblogs.com/xiao-xue-di/category/1289827.html">CSS(4)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="https://www.cnblogs.com/xiao-xue-di/category/1270885.html">Django(37)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="https://www.cnblogs.com/xiao-xue-di/category/1270886.html">Flask(10)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="https://www.cnblogs.com/xiao-xue-di/category/1266324.html">git(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="https://www.cnblogs.com/xiao-xue-di/category/1310724.html">Go(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="https://www.cnblogs.com/xiao-xue-di/category/1289826.html">HTML(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_10" href="https://www.cnblogs.com/xiao-xue-di/category/1300082.html">HTTP(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_11" href="https://www.cnblogs.com/xiao-xue-di/category/1289828.html">JavaScript(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_12" href="https://www.cnblogs.com/xiao-xue-di/category/1294608.html">jQuery(5)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_13" href="https://www.cnblogs.com/xiao-xue-di/category/1268813.html">Linux(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_14" href="https://www.cnblogs.com/xiao-xue-di/category/1301960.html">Mac(6)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_15" href="https://www.cnblogs.com/xiao-xue-di/category/1175883.html">MongoDB(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_16" href="https://www.cnblogs.com/xiao-xue-di/category/1167578.html">MySQL(16)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_17" href="https://www.cnblogs.com/xiao-xue-di/category/1158284.html">Python(37)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_18" href="https://www.cnblogs.com/xiao-xue-di/category/1257995.html">Python模块(26)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_19" href="https://www.cnblogs.com/xiao-xue-di/category/1158283.html">python实现算法学习(13)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_20" href="https://www.cnblogs.com/xiao-xue-di/category/1175748.html">Redis(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_21" href="https://www.cnblogs.com/xiao-xue-di/category/1330246.html">restful framework(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_22" href="https://www.cnblogs.com/xiao-xue-di/category/1294609.html">Tornado(5)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_23" href="https://www.cnblogs.com/xiao-xue-di/category/1300078.html">Vue(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_24" href="https://www.cnblogs.com/xiao-xue-di/category/1282234.html">并发编程(13)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_25" href="https://www.cnblogs.com/xiao-xue-di/category/1280556.html">操作系统(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_26" href="https://www.cnblogs.com/xiao-xue-di/category/1277736.html">个人小组件(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_27" href="https://www.cnblogs.com/xiao-xue-di/category/1275163.html">机器学习(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_28" href="https://www.cnblogs.com/xiao-xue-di/category/1256809.html">练习(6)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_29" href="https://www.cnblogs.com/xiao-xue-di/category/1309589.html">量化投资与python(4)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_30" href="https://www.cnblogs.com/xiao-xue-di/category/1270887.html">爬虫(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_31" href="https://www.cnblogs.com/xiao-xue-di/category/1275132.html">排序算法(5)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_32" href="https://www.cnblogs.com/xiao-xue-di/category/1330247.html">权限管理(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_33" href="https://www.cnblogs.com/xiao-xue-di/category/1330244.html">设计模式(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_34" href="https://www.cnblogs.com/xiao-xue-di/category/1304054.html">树(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_35" href="https://www.cnblogs.com/xiao-xue-di/category/1270857.html">思维导图(9)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_36" href="https://www.cnblogs.com/xiao-xue-di/category/1304055.html">图(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_37" href="https://www.cnblogs.com/xiao-xue-di/category/1276767.html">网络(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_38" href="https://www.cnblogs.com/xiao-xue-di/category/1268814.html">问题处理(19)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_39" href="https://www.cnblogs.com/xiao-xue-di/category/1167181.html">杂(5)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_40" href="https://www.cnblogs.com/xiao-xue-di/category/1302078.html">总结(9)</a> </li>
+
+</ul>
+
+</div>
+
+<div class="catListPostArchive">
+<h3 class="catListTitle">随笔档案</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="https://www.cnblogs.com/xiao-xue-di/archive/2018/10.html">2018年10月 (35)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="https://www.cnblogs.com/xiao-xue-di/archive/2018/09.html">2018年9月 (98)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="https://www.cnblogs.com/xiao-xue-di/archive/2018/08.html">2018年8月 (113)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="https://www.cnblogs.com/xiao-xue-di/archive/2018/07.html">2018年7月 (43)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="https://www.cnblogs.com/xiao-xue-di/archive/2018/03.html">2018年3月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="https://www.cnblogs.com/xiao-xue-di/archive/2018/02.html">2018年2月 (5)</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+	<div id="RecentCommentsBlock"><ul>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/xiao-xue-di/articles/9268307.html#4014283">1. Re:python列表和元组的常用操作</a></li>
+        <li class="recent_comment_body">强烈推荐</li>
+        <li class="recent_comment_author">--Hear7</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/xiao-xue-di/articles/9273898.html#4014278">2. Re:Python字典的常用操作</a></li>
+        <li class="recent_comment_body">写的非常好,值得学习借鉴</li>
+        <li class="recent_comment_author">--Hear7</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="https://www.cnblogs.com/xiao-xue-di/p/9399314.html">1. Python生成器实现斐波那契数列(241)</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/p/9265162.html">2. Python实现判断回文串(206)</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/p/9264071.html">3. Python字符串对象常用方法(129)</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/p/8424546.html">4. 遗传算法(67)</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/p/9454754.html">5. 单链表的拆分(62)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="https://www.cnblogs.com/xiao-xue-di/p/9273898.html">1. Python字典的常用操作(1)</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/p/9268307.html">2. python列表和元组的常用操作(1)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div id="TopDiggPostsBlock"><ul><li><a href="https://www.cnblogs.com/xiao-xue-di/p/9291461.html">1. Python实现冒泡排序(1)</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/p/9273898.html">2. Python字典的常用操作(1)</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/p/9268307.html">3. python列表和元组的常用操作(1)</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/p/9685421.html">4. Django之模板继承(1)</a></li><li><a href="https://www.cnblogs.com/xiao-xue-di/p/9719835.html">5. 堆(1)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2018 小学弟-
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+<iframe id="google_osd_static_frame_8671081612960" name="google_osd_static_frame" style="display: none; width: 0px; height: 0px;" src="./基于角色权限管理：rbac设计分析以及具体细节 - 小学弟- - 博客园_files/saved_resource(1).html"></iframe></body></html>

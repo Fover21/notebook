@@ -1,0 +1,72 @@
+2018年12月14日：
+Django web：
+优点：大而全，ORM models ，model Form ，admin ，csrf ，session
+缺点：资源浪费
+
+Flask web：
+优点：小而精，ORM:x , Form:x , admin:x,csrf:x,session:√,第三方组件 ： 全
+缺陷：稳定性较差
+
+Tornado：
+优点：异步IO非阻塞 原生websocket
+缺点：啥都没有
+
+Sanic Web：
+async def index():
+
+1.初识Flask
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/",methods=["GET","POST"])
+def index():
+	return ""
+
+app.run()
+
+
+2.Response三贱客
+HTTPResponse：return "先帝创业未半而中道崩殂"
+render: return render_template("login.html")
+redirect:return redirect("/login")
+小儿子：
+	return send_file() : return send_file("1.mp4") 打开并传输文件 
+	return jsonify() : return jsonify({"name":"JWB","age":73}) Content-Type: application/json
+
+3.Flask中的Request request公共变量？
+from flask import request
+request.method 请求方式
+request.form 存储的是所有FormData中的所有数据
+request.args 存储的是所有URL中的所有数据
+request.json Content-Type: application/json 存放在request.json中
+request.data 当Content-Type无法被解析时，存放原始数据
+request.url	请求地址
+request.path url路由地址
+request.host 主机地址
+request.host_url 将主机地址转换为httpurl
+
+
+4.Jinja2
+{{}} 引用或执行时
+{%%} 逻辑代码
+符合python用法
+
+
+5.Session
+from flask import session
+app.secret_key = "yinjiaodawangba"
+Flask中的session是保存在 cookie 中的
+session["user"] = "jwb"
+session.get("user")
+
+
+作业：
+	使用Session装饰器校验登录 3个视图函数
+
+
+
+
+
+
+
+

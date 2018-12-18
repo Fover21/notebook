@@ -1,0 +1,115 @@
+2018年12月17日：
+上节回顾：
+	Flask 小而精 三方组件全 
+	稳定性相对较差
+	
+	1.启动：
+		from flask import Flask
+		app = Flask(__name__)
+		app.run("0.0.0.0",5000,debug=True)
+		
+	2.加入路由
+		@app.route("/",methods=("GET","POST"))
+		def index():
+			return "123"
+			
+	3.Response三贱客 + 小儿子：
+		HTTPResponse return "httpresponse"
+		from flask import redirect
+		redirect: return redirect("/")
+		from flask import render_template
+		render: return render_template - templates
+		小儿子：
+		from flask import send_file , jsonify		
+		return send_file() 打开并返回文件内容
+		return jsonify() Content-Type: application/json
+	
+	4.request 
+		from flask import request 公共变量 - 数据安全性？
+		request.form 表单数据，FormData 字典 to_dict
+		request.args URL中的参数，数据
+		request.json Content-Type:application/json 请求头
+		request.data Content-Type不被认可 将原始数据存放在data b""
+		request.values 存放 FormData URL 一般情况下 to_dict
+		request.files 获取文件 save 保存
+		request.method
+		request.path
+		
+	5.Jinja:
+		{{}} 引用和执行
+		{%%} 逻辑代码
+	
+	6.session: Flask-session
+		将 session 加密后存放在浏览器的 Cookie
+		from flask import session
+		app.secret_key = "jinwangba"  
+		session["user"] = "yinwangba"
+		session.get("user")
+		
+	
+	写装饰器 基于session 验证用户有效性
+
+2018年12月17日：
+	1.Flask 中的路由 
+		*endpoint - url_for 反向地址
+		*endpoint 默认是视图函数名
+		*methods 指定视图函数的请求方式，默认GET
+		defaults={"nid":1} 指定视图函数的默认参数
+		strict_slashes=False 是否严格遵循路由规则 /login/
+		redirect_to="/login" 永久跳转地址 301
+		
+		*动态路由参数：
+		/<int:nid>  /<string:str> /<nid> 
+		视图函数中需要有参数接收动态路由参数
+		
+	2.Flask中的实例化配置
+		*template_folder = "temp"  # template模板目录, 默认当前项目中的 templates 目录
+		*static_folder = "jingtaiwenjianmulu" 目录
+		*static_url_path = "/static" 访问路径
+		static_host = 
+		
+		host_matching = False,  # 如果不是特别需要的话,慎用,否则所有的route 都需要host=""的参数
+		subdomain_matching = False,  # 理论上来说是用来限制SERVER_NAME子域名的,但是目前还没有感觉出来区别在哪里
+		instance_path = None,  # 指向另一个Flask实例的路径
+		instance_relative_config = False  # 是否加载另一个实例的配置
+		root_path = None  # 主模块所在的目录的绝对路径,默认项目目录
+		
+	3.app对象配置
+		app.config.from_object(Debug)
+		class Debug(object):
+			DEBUG=True
+	
+	4.蓝图 Blueprint
+		form flask import Blueprint
+		blue = Blueprint("blue_id",__name__,url_prefix)
+		url_prefix 前缀
+		app.register_blueprint(blue)
+	
+	5.特殊装饰器：
+		@app.template_global()
+		@app.template_filter()
+		
+		@app.before_request
+			请求进入视图函数之前
+			
+		@app.after_request
+		def af1(response)
+			return response
+			结束视图函数之后，返回客户端之前
+			
+		
+		正常:be1 - be2 - be3 - af3 - af2 - af1 
+		异常:be1 - af3 - af2 - af1
+		
+		@app.errorhandler(404) 重定义页面
+		def error404(args):
+		
+	基于蓝图实现增删改查数据 基于Before_request session 实现用户校验
+	可选errorhandler
+				
+		
+		
+	
+		
+	
+		

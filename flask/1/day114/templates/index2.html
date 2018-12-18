@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="content-Type" charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>学生信息</title>
+</head>
+<body>
+    {{ stu }}
+<table border="2px">
+    <thead>
+        <tr>
+            <th>name</th>
+            <th>age</th>
+            <th>gender</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for student in stu %}
+        <tr>
+            <td>{{ student.name }}</td>
+            <td>{{ student.get("age") }}</td>
+            <td>{{ student["gender"] }}</td>
+        </tr>
+    {% endfor %}
+        <tr>
+            <td>{{ stu.2.name }}</td>
+            <td>{{ stu[2].get("age") }}</td>
+            <td>{{ stu.2["gender"] }}</td>
+        </tr>
+
+    </tbody>
+</table>
+</body>
+</html>

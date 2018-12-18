@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="content-Type" charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>学生信息</title>
+</head>
+<body>
+{% include "my_block.html" %}
+    {{ stu }}
+<table border="2px">
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>age</th>
+            <th>gender</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for id,student in stu.items() %}
+        <tr>
+            <td>{{ id }}</td>
+            <td>{{ stu[id].name }}</td>
+            <td>{{ stu.get(id)["age"] }}</td>
+            {% if stu[id]["gender"] != "男" and stu[id]["gender"] != "女" %}
+                <td>女</td>
+            {% else %}
+                <td>{{ stu[id]["gender"] }}</td>
+            {% endif %}
+
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+{{ inp}}
+{{ ab(6,9) }}
+{{ ab(3,4) | axb(834473503) }}
+
+{% macro my_input(na,tp) %}
+    <input type="{{ tp }}" value="{{ na }}">
+{% endmacro %}
+
+{{ my_input("uname","submit") }}
+
+{% block content %}
+
+{% endblock %}
+
+</body>
+</html>

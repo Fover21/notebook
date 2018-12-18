@@ -1,0 +1,64 @@
+2018年12月18日：
+1.CBV :
+	from flask import views
+	
+	class LoginView(views.MethodView):
+		def get(self):
+			return
+			
+		def post(self):
+			return
+			
+	
+	app.add_url_rule("/login",endpoint=None,view_func=LoginView.as_view("login"))
+	
+2.flash:
+	from flask import flash,get_flash_messages
+	
+	flash("","tag")
+	get_flash_messages("tag")
+	
+
+3.Flask-Session
+	from flask_session import Session
+	from flask import session
+	
+	app.config["SESSION_TYPE"] = "redis"
+	app.config["SESSION_REDIS"] = Redis("127.0.0.1",6379,db=7)
+	Session(app)
+	
+	session["user"] == "123"
+	session.get("user")
+	
+
+
+4.WTForms - MoudelForm
+	from wtfroms.fields import simple,core
+	from wtfroms import Form,validators
+	
+	class LoginForm(Form):
+		username = simple.StringFields(
+			label = "" #看源码 __init__
+		)
+		
+	
+	lf = LoginForm()
+	render_template("html",lf=lf)
+	
+	{{ lf.uername }}
+	{{ lf.uername.label }}
+	{{ lf.uername.errors.0 }}
+	
+	lf = LoginForm(request.form)
+	
+	if not lf.validata():
+		render_template("html",lf=lf)
+	
+	lf.data.get("username")
+	
+
+
+
+5.DBUtils 数据库连接池
+	
+	

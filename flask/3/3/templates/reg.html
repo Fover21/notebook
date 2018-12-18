@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="content-Type" charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+</head>
+<body>
+<form action="" method="post">
+    {% for field in rf %}
+        <p>{{ field.label }}{{ field }}{{ field.errors.0 }}</p>
+    {% endfor %}
+</form>
+
+</body>
+</html>
